@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TDF Microvisions | AI-Crafted Games</title>
+  <meta name="description" content="Play Alien Bomber & City Bomber — HTML5 games built with AI assistance. Explore the making-of story."/>
+  <style>
+    :root { --bg: #0a0a1a; --text: #e0e0ff; --accent: #7e57ff; --card: #1a1a3a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6; padding: 2rem; max-width: 900px; margin: 0 auto;
+    }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    h1 { font-size: 2.2rem; margin-bottom: 0.5rem; background: linear-gradient(90deg, #7e57ff, #4fc3f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .subtitle { opacity: 0.9; margin-bottom: 1.5rem; }
+    .grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.5rem;
+      border: 1px solid #333; transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .card h3 { margin-bottom: 0.75rem; color: var(--accent); }
+    .card p { font-size: 0.95rem; opacity: 0.95; margin-bottom: 1rem; }
+    .btn {
+      display: inline-block; background: var(--accent); color: white;
+      padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none;
+      font-weight: 600; transition: filter 0.2s;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    footer { text-align: center; margin-top: 3rem; opacity: 0.7; font-size: 0.9rem; }
+    @media (max-width: 600px) { h1 { font-size: 1.8rem; } body { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚀 TDF Microvisions</h1>
+    <p class="subtitle">AI-assisted HTML5 games • Built with creativity, not just code</p>
+  </header>
+  <main class="grid">
+    <article class="card">
+      <h3>👽 Alien Bomber</h3>
+      <p>Destroy alien structures before your spacecraft crashes. 3 levels. Progressive damage. High scores.</p>
+      <a class="btn" href="alien-bomber.html">Play Now</a>
+    </article>
+    <article class="card">
+      <h3>🏙️ City Bomber</h3>
+      <p>Urban edition! Same thrilling mechanics, city skyline theme. Mobile-friendly controls.</p>
+      <a class="btn" href="city-bomber.html">Play Now</a>
+    </article>
+    <article class="card">
+      <h3>🤖 How It Was Made</h3>
+      <p>See how AI helped build these games in hours — no prior coding experience needed. Great for STEM learning.</p>
+      <a class="btn" href="how-it-was-made.html">Read the Story</a>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 TDF Microvisions • Hosted on GitHub Pages • <a href="https://github.com/dpagett-cloud/TDF-Website" style="color:var(--accent)">View Source</a></p>
+  </footer>
+</body>
+</html>

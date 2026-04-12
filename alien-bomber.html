@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👽 ALIEN BOMBER</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-press-start-2p@4.0.0/index.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a0a2e 50%, #2a0a3e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(180deg, #0a0a1e 0%, #1a0a3e 50%, #2a0a5e 100%);
+            border: 4px solid #00ff88;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            overflow: hidden;
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10;
+        }
+
+        .screen.hidden {
+            display: none !important;
+        }
+
+        .title {
+            font-size: 42px;
+            color: #00ff88;
+            text-shadow: 4px 4px 0 #0a2a1a, 0 0 20px #00ff88;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 2;
+        }
+
+        .btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            padding: 15px 35px;
+            margin: 10px;
+            background: linear-gradient(180deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+            border: 4px solid #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: linear-gradient(180deg, #33ff99 0%, #00ff88 100%);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(180deg, #2a0a4e 0%, #1a0a3e 100%);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(180deg, #3a1a5e 0%, #2a0a4e 100%);
+        }
+
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            color: #fff;
+            font-size: 11px;
+            z-index: 5;
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 2px solid #00ff88;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .hud-label {
+            color: #00ff88;
+            margin-right: 5px;
+        }
+
+        #high-scores-screen .title {
+            font-size: 28px;
+        }
+
+        #high-scores-list {
+            width: 85%;
+            max-height: 280px;
+            overflow-y: auto;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #00ff88;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #00ff88;
+            color: #fff;
+            font-size: 11px;
+        }
+
+        .score-entry:last-child {
+            border-bottom: none;
+        }
+
+        .score-entry.rank-1 { color: #ffd700; }
+        .score-entry.rank-2 { color: #c0c0c0; }
+        .score-entry.rank-3 { color: #cd7f32; }
+
+        #name-input {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            padding: 12px;
+            width: 280px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #00ff88;
+            color: #fff;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #name-input::placeholder {
+            color: #666;
+        }
+
+        #name-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .new-high-score {
+            font-size: 20px;
+            color: #ffd700;
+            margin-bottom: 15px;
+            animation: blink 0.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            margin-top: 25px;
+            font-size: 10px;
+            color: #888;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .game-over-text {
+            font-size: 32px;
+            color: #ff4444;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0 #000;
+        }
+
+        .victory-text {
+            font-size: 32px;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0 #000;
+        }
+
+        .final-score {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 25px;
+        }
+
+        .level-display {
+            font-size: 14px;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .altitude-warning {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #ff4444;
+            text-shadow: 2px 2px 0 #000;
+            animation: blink 0.3s ease-in-out infinite;
+            z-index: 6;
+            display: none;
+        }
+
+        .altitude-warning.visible {
+            display: block;
+        }
+
+        .star-button {
+            font-size: 50px;
+            cursor: pointer;
+            animation: starPulse 1s ease-in-out infinite;
+            margin: 15px 0;
+            user-select: none;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.2); filter: brightness(1.5); }
+        }
+
+        .star-button:hover {
+            transform: scale(1.3);
+        }
+
+        .level-complete {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #00ff88;
+            text-shadow: 4px 4px 0 #000, 0 0 30px #00ff88;
+            z-index: 8;
+            animation: levelComplete 2s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes levelComplete {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+		// ✅ Mobile "Tap Anywhere to Drop Bomb"
+let touchHandled = false;
+document.addEventListener('touchstart', function(e) {
+  if (typeof gameState !== 'undefined' && gameState === 'PLAYING' && !touchHandled) {
+    e.preventDefault();
+    // Simulate spacebar press so your existing keydown handler works
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+    touchHandled = true;
+    setTimeout(() => { touchHandled = false; }, 150); // Prevent rapid-fire double drops
+  }
+}, { passive: false });
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="hud" class="hidden">
+            <div class="hud-item">
+                <span class="hud-label">🎯 SCORE:</span>
+                <span id="score-display">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">🏢 STRUCTURES:</span>
+                <span id="buildings-display">20</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">📍 LEVEL:</span>
+                <span id="level-display">1</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">⚠️ ALTITUDE:</span>
+                <span id="altitude-display">270</span><span>m</span>
+            </div>
+        </div>
+
+        <div id="altitude-warning" class="altitude-warning">
+            ⚠️ LOW ALTITUDE WARNING ⚠️
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen">
+            <div class="title">👽 ALIEN BOMBER</div>
+            <div class="subtitle">
+                Press SPACEBAR or click the star to start
+            </div>
+            <div class="star-button" id="star-btn">⭐</div>
+            <button id="start-btn" class="btn">Start Mission</button>
+            <button id="high-scores-btn" class="btn btn-secondary">High Scores</button>
+            <div class="controls">
+                SPACE - Drop Bomb<br>
+                Spacecraft moves automatically left to right<br>
+                Destroy all structures before crashing!<br>
+                1 hit = Top 1/3 destroyed<br>
+                2 hits = Top 2/3 destroyed<br>
+                3 hits = Structure destroyed!<br>
+                Complete 3 levels to win!
+            </div>
+        </div>
+
+        <!-- High Scores Screen -->
+        <div id="high-scores-screen" class="screen hidden">
+            <div class="title">🏆 HIGH SCORES 🏆</div>
+            <div id="high-scores-list"></div>
+            <div class="btn-group">
+                <button id="back-menu-btn" class="btn">Back to Menu</button>
+                <button id="clear-scores-btn" class="btn btn-secondary">Clear Scores</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <div class="game-over-text">💥 MISSION FAILED 💥</div>
+            <div class="level-display" id="game-over-level"></div>
+            <div class="final-score">Final Score: <span id="final-score-display">0</span></div>
+            <div class="btn-group">
+                <button id="play-again-btn" class="btn">Try Again</button>
+                <button id="menu-btn" class="btn btn-secondary">Main Menu</button>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="screen hidden">
+            <div class="victory-text">🎉 MISSION COMPLETE! 🎉</div>
+            <div class="final-score">Final Score: <span id="victory-score-display">0</span></div>
+            <div class="btn-group">
+                <button id="victory-play-again-btn" class="btn">Play Again</button>
+                <button id="victory-menu-btn" class="btn btn-secondary">Main Menu</button>
+            </div>
+        </div>
+
+        <!-- New High Score Screen -->
+        <div id="new-high-score-screen" class="screen hidden">
+            <div class="new-high-score">🎉 NEW HIGH SCORE! 🎉</div>
+            <div class="final-score" style="margin-bottom: 10px;">Score: <span id="new-score-display">0</span></div>
+            <input type="text" id="name-input" placeholder="Enter your name (max 12 chars)" maxlength="12">
+            <div class="btn-group">
+                <button id="save-score-btn" class="btn">Save Score</button>
+                <button id="skip-score-btn" class="btn btn-secondary">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const GameState = {
+            MENU: 'menu',
+            PLAYING: 'playing',
+            GAME_OVER: 'game_over',
+            VICTORY: 'victory',
+            HIGH_SCORES: 'high_scores',
+            NEW_HIGH_SCORE: 'new_high_score',
+            CRASH_ANIMATION: 'crash_animation',
+            LEVEL_TRANSITION: 'level_transition'
+        };
+
+        let currentState = GameState.MENU;
+        let score = 0;
+        let planeX = -60;
+        let planeY = 60;
+        let planeSpeed = 3;
+        let bombs = [];
+        let buildings = [];
+        let explosions = [];
+        let particles = [];
+        let gameLoop = null;
+        let bombCooldown = 0;
+        const BOMB_COOLDOWN_MAX = 20;
+        let gameResult = null;
+        let currentLevel = 1;
+        const MAX_LEVELS = 3;
+        const BUILDINGS_PER_LEVEL = [20, 25, 30];
+        let crashAnimationTimer = 0;
+        const CRASH_ANIMATION_DURATION = 120;
+        let levelTransitionTimer = 0;
+        const LEVEL_TRANSITION_DURATION = 120;
+
+        // Game Constants
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+        const PLANE_START_Y = 60;
+        const PLANE_DESCENT = 35;
+        const MIN_ALTITUDE = 120;
+        const BUILDING_HITS_TO_DESTROY = 3;
+
+        // High Scores
+        const MAX_HIGH_SCORES = 10;
+        let highScores = [];
+        
+        try {
+            const stored = localStorage.getItem('alienBomberHighScores');
+            if (stored) {
+                highScores = JSON.parse(stored);
+            }
+        } catch (e) {
+            console.log('LocalStorage not available, using in-memory scores');
+            highScores = [];
+        }
+
+        // DOM Elements
+        const gameContainer = document.getElementById('game-container');
+        const gameCanvas = document.getElementById('game-canvas');
+        const ctx = gameCanvas.getContext('2d');
+        const startScreen = document.getElementById('start-screen');
+        const highScoresScreen = document.getElementById('high-scores-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const victoryScreen = document.getElementById('victory-screen');
+        const newHighScoreScreen = document.getElementById('new-high-score-screen');
+        const hud = document.getElementById('hud');
+        const scoreDisplay = document.getElementById('score-display');
+        const buildingsDisplay = document.getElementById('buildings-display');
+        const levelDisplay = document.getElementById('level-display');
+        const altitudeDisplay = document.getElementById('altitude-display');
+        const finalScoreDisplay = document.getElementById('final-score-display');
+        const victoryScoreDisplay = document.getElementById('victory-score-display');
+        const newScoreDisplay = document.getElementById('new-score-display');
+        const nameInput = document.getElementById('name-input');
+        const highScoresList = document.getElementById('high-scores-list');
+        const altitudeWarning = document.getElementById('altitude-warning');
+        const gameOverLevel = document.getElementById('game-over-level');
+
+        // Initialize Canvas
+        function initCanvas() {
+            gameCanvas.width = CANVAS_WIDTH;
+            gameCanvas.height = CANVAS_HEIGHT;
+        }
+
+        // Generate Alien Structures
+        function generateBuildings() {
+            buildings = [];
+            const numBuildings = BUILDINGS_PER_LEVEL[currentLevel - 1] || 20;
+            const minWidth = 35;
+            const maxWidth = 55;
+            const minHeight = 100;
+            const maxHeight = 220;
+            
+            const totalWidth = CANVAS_WIDTH - 100;
+            const spacing = totalWidth / numBuildings;
+            
+            for (let i = 0; i < numBuildings; i++) {
+                const width = minWidth + Math.random() * (maxWidth - minWidth);
+                const height = minHeight + Math.random() * (maxHeight - minHeight);
+                const x = 50 + i * spacing;
+                
+                const windows = [];
+                const windowRows = Math.floor(height / 25);
+                const windowCols = Math.floor(width / 15);
+                
+                for (let row = 0; row < windowRows; row++) {
+                    for (let col = 0; col < windowCols; col++) {
+                        if (Math.random() > 0.3) {
+                            windows.push({
+                                x: col * 15 + 5,
+                                y: row * 25 + 10,
+                                lit: Math.random() > 0.4
+                            });
+                        }
+                    }
+                }
+                
+                // Alien color scheme - purples, cyans, greens
+                const alienColors = [
+                    { main: '#2a0a4e', accent: '#00ff88', glow: '#00ff88' },
+                    { main: '#1a0a3e', accent: '#00ffff', glow: '#00ffff' },
+                    { main: '#3a0a5e', accent: '#ff00ff', glow: '#ff00ff' },
+                    { main: '#2a1a4e', accent: '#88ff00', glow: '#88ff00' },
+                    { main: '#1a1a3e', accent: '#ff8800', glow: '#ff8800' }
+                ];
+                const colorScheme = alienColors[Math.floor(Math.random() * alienColors.length)];
+                
+                buildings.push({
+                    x: x,
+                    y: CANVAS_HEIGHT - height,
+                    width: width,
+                    height: height,
+                    originalHeight: height,
+                    windows: windows,
+                    hits: 0,
+                    maxHits: BUILDING_HITS_TO_DESTROY,
+                    active: true,
+                    baseColor: colorScheme.main,
+                    accentColor: colorScheme.accent,
+                    glowColor: colorScheme.glow,
+                    alienType: Math.floor(Math.random() * 4)
+                });
+            }
+        }
+
+        // Draw Alien Spacecraft
+        function drawAlienSpacecraft(x, y, direction) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(direction, 1);
+            
+            // Main body - oval saucer shape
+            ctx.fillStyle = '#4a5568';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 40, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Top dome
+            ctx.fillStyle = '#00ffff';
+            ctx.beginPath();
+            ctx.ellipse(0, -5, 18, 14, 0, Math.PI, 0);
+            ctx.fill();
+            
+            // Dome glow
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.ellipse(0, -5, 22, 18, 0, Math.PI, 0);
+            ctx.fill();
+            
+            // Cockpit window
+            ctx.fillStyle = '#00ff88';
+            ctx.beginPath();
+            ctx.ellipse(5, -8, 10, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Engine glow underneath
+            ctx.fillStyle = '#ff8800';
+            ctx.beginPath();
+            ctx.ellipse(-15, 12, 8, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffaa00';
+            ctx.beginPath();
+            ctx.ellipse(0, 14, 10, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ff8800';
+            ctx.beginPath();
+            ctx.ellipse(15, 12, 8, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Side lights
+            ctx.fillStyle = '#ff00ff';
+            ctx.beginPath();
+            ctx.arc(-35, 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ff00ff';
+            ctx.beginPath();
+            ctx.arc(35, 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Antenna
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -18);
+            ctx.lineTo(0, -28);
+            ctx.stroke();
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(0, -30, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Wing fins
+            ctx.fillStyle = '#2d3748';
+            ctx.beginPath();
+            ctx.moveTo(-20, 0);
+            ctx.lineTo(-35, -8);
+            ctx.lineTo(-25, 5);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(20, 0);
+            ctx.lineTo(35, -8);
+            ctx.lineTo(25, 5);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // Start Game
+        function startGame() {
+            if (currentState === GameState.PLAYING || currentState === GameState.CRASH_ANIMATION || currentState === GameState.LEVEL_TRANSITION) return;
+            
+            currentState = GameState.PLAYING;
+            currentLevel = 1;
+            score = 0;
+            planeX = -60;
+            planeY = PLANE_START_Y;
+            planeSpeed = 3;
+            bombs = [];
+            explosions = [];
+            particles = [];
+            bombCooldown = 0;
+            gameResult = null;
+            crashAnimationTimer = 0;
+            levelTransitionTimer = 0;
+            
+            generateBuildings();
+            updateHUD();
+            
+            startScreen.classList.add('hidden');
+            highScoresScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            victoryScreen.classList.add('hidden');
+            newHighScoreScreen.classList.add('hidden');
+            hud.classList.remove('hidden');
+            altitudeWarning.classList.remove('visible');
+            
+            if (gameLoop) cancelAnimationFrame(gameLoop);
+            gameLoop = requestAnimationFrame(update);
+        }
+
+        // Start Next Level
+        function startNextLevel() {
+            currentLevel++;
+            
+            if (currentLevel > MAX_LEVELS) {
+                gameResult = 'victory';
+                endGame();
+                return;
+            }
+            
+            const levelCompleteEl = document.createElement('div');
+            levelCompleteEl.className = 'level-complete';
+            levelCompleteEl.textContent = `LEVEL ${currentLevel - 1} COMPLETE!`;
+            gameContainer.appendChild(levelCompleteEl);
+            
+            setTimeout(() => {
+                if (levelCompleteEl && levelCompleteEl.parentNode) {
+                    levelCompleteEl.remove();
+                }
+            }, 2000);
+            
+            planeX = -60;
+            planeY = PLANE_START_Y;
+            planeSpeed = 3 + currentLevel * 0.5;
+            bombs = [];
+            explosions = [];
+            particles = [];
+            bombCooldown = 0;
+            
+            generateBuildings();
+            updateHUD();
+            
+            if (currentState === GameState.PLAYING) {
+                gameLoop = requestAnimationFrame(update);
+            }
+        }
+
+        // Drop Bomb
+        function dropBomb() {
+            if (bombCooldown > 0 || currentState !== GameState.PLAYING) return;
+            
+            bombs.push({
+                x: planeX + 5,
+                y: planeY + 10,
+                active: true,
+                rotation: 0
+            });
+            bombCooldown = BOMB_COOLDOWN_MAX;
+        }
+
+        // Create Explosion
+        function createExplosion(x, y, size) {
+            const particleCount = size === 'large' ? 30 : 15;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    decay: 0.02 + Math.random() * 0.02,
+                    color: `hsl(${Math.random() * 100 + 100}, 100%, 50%)`,
+                    size: 4 + Math.random() * 6
+                });
+            }
+            
+            explosions.push({
+                x: x,
+                y: y,
+                frame: 0,
+                maxFrames: 25,
+                size: size === 'large' ? 60 : 35
+            });
+        }
+
+        // Update HUD
+        function updateHUD() {
+            scoreDisplay.textContent = score;
+            const activeBuildings = buildings.filter(b => b && b.active).length;
+            buildingsDisplay.textContent = activeBuildings;
+            levelDisplay.textContent = currentLevel;
+            const altitude = Math.max(0, Math.floor((CANVAS_HEIGHT - MIN_ALTITUDE - planeY) / 2));
+            altitudeDisplay.textContent = altitude;
+            
+            if (planeY > CANVAS_HEIGHT - MIN_ALTITUDE - 40) {
+                altitudeWarning.classList.add('visible');
+            } else {
+                altitudeWarning.classList.remove('visible');
+            }
+        }
+
+        // Draw Alien Structure with Damage
+        function drawBuilding(building) {
+            if (!building || !building.active) return;
+            
+            const heightRatio = 1 - (building.hits / building.maxHits);
+            const currentHeight = Math.max(10, building.originalHeight * heightRatio);
+            const currentY = CANVAS_HEIGHT - currentHeight;
+            
+            // Main structure body
+            ctx.fillStyle = building.baseColor;
+            
+            // Different alien structure shapes
+            if (building.alienType === 0) {
+                // Tower style
+                ctx.fillRect(building.x, currentY, building.width, currentHeight);
+            } else if (building.alienType === 1) {
+                // Pyramid style
+                ctx.beginPath();
+                ctx.moveTo(building.x + building.width / 2, currentY);
+                ctx.lineTo(building.x + building.width, currentY + currentHeight);
+                ctx.lineTo(building.x, currentY + currentHeight);
+                ctx.closePath();
+                ctx.fill();
+            } else if (building.alienType === 2) {
+                // Dome style
+                ctx.beginPath();
+                ctx.arc(building.x + building.width / 2, currentY + currentHeight, building.width / 2, Math.PI, 0);
+                ctx.fill();
+            } else {
+                // Blocky style with indentations
+                ctx.fillRect(building.x, currentY, building.width, currentHeight);
+                ctx.fillStyle = building.baseColor;
+                ctx.fillRect(building.x + 5, currentY + 10, building.width - 10, currentHeight - 20);
+            }
+            
+            // Glowing accent lines
+            ctx.strokeStyle = building.accentColor;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = building.glowColor;
+            ctx.shadowBlur = 10;
+            
+            // Horizontal glow lines
+            for (let i = 0; i < currentHeight; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(building.x, currentY + i);
+                ctx.lineTo(building.x + building.width, currentY + i);
+                ctx.stroke();
+            }
+            
+            // Vertical glow lines
+            for (let i = 0; i < building.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(building.x + i, currentY);
+                ctx.lineTo(building.x + i, currentY + currentHeight);
+                ctx.stroke();
+            }
+            
+            ctx.shadowBlur = 0;
+            
+            // Alien windows/lights
+            if (building.windows) {
+                building.windows.forEach(win => {
+                    const winGlobalY = building.y + win.y;
+                    if (winGlobalY >= currentY) {
+                        if (win.lit) {
+                            ctx.fillStyle = building.accentColor;
+                            ctx.shadowColor = building.glowColor;
+                            ctx.shadowBlur = 8;
+                        } else {
+                            ctx.fillStyle = '#0a0a1e';
+                            ctx.shadowBlur = 0;
+                        }
+                        
+                        // Alien window shapes
+                        if (building.alienType === 1) {
+                            ctx.beginPath();
+                            ctx.arc(building.x + win.x + 3, winGlobalY + 4, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        } else {
+                            ctx.fillRect(building.x + win.x, winGlobalY, 6, 8);
+                        }
+                    }
+                });
+            }
+            ctx.shadowBlur = 0;
+            
+            // Damage effect
+            if (building.hits > 0) {
+                const damageHeight = currentHeight * 0.3;
+                const gradient = ctx.createLinearGradient(
+                    building.x, currentY,
+                    building.x, currentY + damageHeight
+                );
+                gradient.addColorStop(0, 'rgba(255, 100, 50, 0.6)');
+                gradient.addColorStop(1, 'rgba(255, 100, 50, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(building.x, currentY, building.width, damageHeight);
+            }
+            
+            // Hit indicators
+            if (building.hits > 0) {
+                ctx.fillStyle = '#ff8800';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                let flames = '';
+                for (let i = 0; i < building.hits; i++) flames += '⚡';
+                ctx.fillText(flames, building.x + building.width / 2, currentY - 10);
+            }
+        }
+
+        // Draw Background Stars
+        function drawStars() {
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 50; i++) {
+                const starX = (i * 73) % CANVAS_WIDTH;
+                const starY = (i * 47) % (CANVAS_HEIGHT - 250);
+                ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 500 + i) * 0.3;
+                ctx.fillRect(starX, starY, 2, 2);
+            }
+            ctx.globalAlpha = 1;
+            
+            // Add some alien planet background elements
+            ctx.fillStyle = 'rgba(0, 255, 136, 0.1)';
+            for (let i = 0; i < 5; i++) {
+                const orbX = (Date.now() / 50 + i * 200) % CANVAS_WIDTH;
+                const orbY = 100 + i * 80;
+                ctx.beginPath();
+                ctx.arc(orbX, orbY, 30, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw Explosions
+        function drawExplosions() {
+            explosions = explosions.filter(exp => exp && exp.frame < exp.maxFrames);
+            explosions.forEach(exp => {
+                if (!exp) return;
+                exp.frame++;
+                const progress = exp.frame / exp.maxFrames;
+                const scale = 1 + progress * 1.5;
+                const alpha = 1 - progress;
+                
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.translate(exp.x, exp.y);
+                ctx.scale(scale, scale);
+                ctx.font = `${exp.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('💥', 0, 0);
+                ctx.restore();
+            });
+        }
+
+        // Draw Particles
+        function drawParticles() {
+            particles = particles.filter(p => p && p.life > 0);
+            particles.forEach(p => {
+                if (!p) return;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.life -= p.decay;
+                
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                const radius = Math.max(0.5, p.size * p.life);
+                ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // Update Game
+        function update() {
+            if (currentState !== GameState.PLAYING) return;
+            
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            
+            drawStars();
+            
+            planeX += planeSpeed;
+            
+            if (planeX > CANVAS_WIDTH + 60) {
+                planeX = -60;
+                planeY += PLANE_DESCENT;
+                planeSpeed = Math.min(6, planeSpeed + 0.1);
+            }
+            
+            const planeHitbox = {
+                x: planeX - 35,
+                y: planeY - 12,
+                width: 70,
+                height: 25
+            };
+            
+            for (const building of buildings) {
+                if (building && building.active) {
+                    const currentHeight = building.originalHeight * (1 - building.hits / building.maxHits);
+                    const currentY = CANVAS_HEIGHT - currentHeight;
+                    
+                    if (planeHitbox.x < building.x + building.width &&
+                        planeHitbox.x + planeHitbox.width > building.x &&
+                        planeHitbox.y < CANVAS_HEIGHT &&
+                        planeHitbox.y + planeHitbox.height > currentY) {
+                        
+                        currentState = GameState.CRASH_ANIMATION;
+                        crashAnimationTimer = 0;
+                        createExplosion(planeX, planeY, 'large');
+                        gameResult = 'crash';
+                        crashAnimationLoop();
+                        return;
+                    }
+                }
+            }
+            
+            if (planeY > CANVAS_HEIGHT - MIN_ALTITUDE) {
+                currentState = GameState.CRASH_ANIMATION;
+                crashAnimationTimer = 0;
+                createExplosion(planeX, planeY, 'large');
+                gameResult = 'crash';
+                crashAnimationLoop();
+                return;
+            }
+            
+            drawAlienSpacecraft(planeX, planeY, 1);
+            
+            if (bombCooldown > 0) {
+                bombCooldown--;
+            }
+            
+            bombs = bombs.filter(bomb => bomb && bomb.active);
+            bombs.forEach(bomb => {
+                if (!bomb) return;
+                bomb.y += 6;
+                bomb.rotation += 0.15;
+                
+                ctx.save();
+                ctx.translate(bomb.x, bomb.y);
+                ctx.rotate(bomb.rotation);
+                
+                // Alien bomb appearance
+                ctx.fillStyle = '#00ff88';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 8, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+                
+                for (const building of buildings) {
+                    if (building && building.active) {
+                        const buildingTop = CANVAS_HEIGHT - building.originalHeight * (1 - building.hits / building.maxHits);
+                        if (bomb.x > building.x &&
+                            bomb.x < building.x + building.width &&
+                            bomb.y > buildingTop) {
+                            
+                            bomb.active = false;
+                            building.hits++;
+                            
+                            createExplosion(bomb.x, bomb.y, 'small');
+                            
+                            if (building.hits >= building.maxHits) {
+                                building.active = false;
+                                score += 150;
+                                createExplosion(
+                                    building.x + building.width / 2,
+                                    CANVAS_HEIGHT - 20,
+                                    'large'
+                                );
+                            } else {
+                                score += 25;
+                            }
+                            
+                            updateHUD();
+                            break;
+                        }
+                    }
+                }
+                
+                if (bomb.y > CANVAS_HEIGHT) {
+                    bomb.active = false;
+                }
+            });
+            
+            drawExplosions();
+            drawParticles();
+            
+            buildings.forEach(building => {
+                drawBuilding(building);
+            });
+            
+            const activeBuildings = buildings.filter(b => b && b.active).length;
+            if (activeBuildings === 0) {
+                startNextLevel();
+                return;
+            }
+            
+            updateHUD();
+            gameLoop = requestAnimationFrame(update);
+        }
+
+        // Crash Animation Loop
+        function crashAnimationLoop() {
+            if (currentState !== GameState.CRASH_ANIMATION) return;
+            
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            
+            drawStars();
+            
+            buildings.forEach(building => {
+                drawBuilding(building);
+            });
+            
+            drawExplosions();
+            drawParticles();
+            
+            crashAnimationTimer++;
+            
+            if (crashAnimationTimer < CRASH_ANIMATION_DURATION && (explosions.length > 0 || particles.length > 0)) {
+                gameLoop = requestAnimationFrame(crashAnimationLoop);
+            } else {
+                endGame();
+            }
+        }
+
+        // End Game
+        function endGame() {
+            if (currentState === GameState.GAME_OVER || currentState === GameState.VICTORY) return;
+            
+            currentState = GameState.GAME_OVER;
+            if (gameLoop) cancelAnimationFrame(gameLoop);
+            
+            hud.classList.add('hidden');
+            altitudeWarning.classList.remove('visible');
+            
+            if (gameResult === 'victory') {
+                currentState = GameState.VICTORY;
+                victoryScoreDisplay.textContent = score;
+                victoryScreen.classList.remove('hidden');
+            } else {
+                finalScoreDisplay.textContent = score;
+                gameOverLevel.textContent = `Level: ${currentLevel}`;
+                gameOverScreen.classList.remove('hidden');
+            }
+            
+            if (isHighScore(score)) {
+                setTimeout(() => {
+                    showNewHighScoreScreen();
+                }, 500);
+            }
+        }
+
+        // Check if score qualifies for high scores
+        function isHighScore(newScore) {
+            if (highScores.length < MAX_HIGH_SCORES) return true;
+            return newScore > highScores[highScores.length - 1].score;
+        }
+
+        // Show New High Score Screen
+        function showNewHighScoreScreen() {
+            currentState = GameState.NEW_HIGH_SCORE;
+            newScoreDisplay.textContent = score;
+            gameOverScreen.classList.add('hidden');
+            victoryScreen.classList.add('hidden');
+            newHighScoreScreen.classList.remove('hidden');
+            nameInput.value = '';
+            nameInput.focus();
+        }
+
+        // Save High Score
+        function saveHighScore() {
+            const name = nameInput.value.trim() || 'Anonymous';
+            highScores.push({ 
+                name: name.substring(0, 12), 
+                score: score, 
+                date: new Date().toLocaleDateString(),
+                result: gameResult,
+                level: currentLevel
+            });
+            highScores.sort((a, b) => b.score - a.score);
+            highScores = highScores.slice(0, MAX_HIGH_SCORES);
+            
+            try {
+                localStorage.setItem('alienBomberHighScores', JSON.stringify(highScores));
+            } catch (e) {
+                console.log('Could not save to localStorage');
+            }
+            
+            showMenu();
+        }
+
+        // Show High Scores
+        function showHighScores() {
+            currentState = GameState.HIGH_SCORES;
+            renderHighScores();
+            startScreen.classList.add('hidden');
+            highScoresScreen.classList.remove('hidden');
+        }
+
+        // Render High Scores
+        function renderHighScores() {
+            highScoresList.innerHTML = '';
+            
+            if (highScores.length === 0) {
+                highScoresList.innerHTML = '<div class="score-entry" style="justify-content: center; color: #888;">No scores yet! Be the first!</div>';
+                return;
+            }
+            
+            highScores.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.className = `score-entry rank-${index + 1}`;
+                const resultIcon = entry.result === 'victory' ? '🏆' : '💥';
+                div.innerHTML = `
+                    <span>#${index + 1} ${resultIcon} ${entry.name} (L${entry.level})</span>
+                    <span>${entry.score} pts</span>
+                `;
+                highScoresList.appendChild(div);
+            });
+        }
+
+        // Clear High Scores
+        function clearHighScores() {
+            if (confirm('Are you sure you want to clear all high scores?')) {
+                highScores = [];
+                try {
+                    localStorage.removeItem('alienBomberHighScores');
+                } catch (e) {
+                    console.log('Could not clear localStorage');
+                }
+                renderHighScores();
+            }
+        }
+
+        // Show Menu
+        function showMenu() {
+            currentState = GameState.MENU;
+            startScreen.classList.remove('hidden');
+            highScoresScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            victoryScreen.classList.add('hidden');
+            newHighScoreScreen.classList.add('hidden');
+            hud.classList.add('hidden');
+            altitudeWarning.classList.remove('visible');
+        }
+
+        // Event Listeners
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('star-btn').addEventListener('click', startGame);
+        document.getElementById('high-scores-btn').addEventListener('click', showHighScores);
+        document.getElementById('back-menu-btn').addEventListener('click', showMenu);
+        document.getElementById('clear-scores-btn').addEventListener('click', clearHighScores);
+        document.getElementById('play-again-btn').addEventListener('click', startGame);
+        document.getElementById('menu-btn').addEventListener('click', showMenu);
+        document.getElementById('victory-play-again-btn').addEventListener('click', startGame);
+        document.getElementById('victory-menu-btn').addEventListener('click', showMenu);
+        document.getElementById('save-score-btn').addEventListener('click', saveHighScore);
+        document.getElementById('skip-score-btn').addEventListener('click', showMenu);
+
+        // Keyboard Input
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                
+                if (currentState === GameState.NEW_HIGH_SCORE && document.activeElement === nameInput) {
+                    nameInput.value += ' ';
+                    return;
+                }
+                
+                if (currentState === GameState.MENU) {
+                    startGame();
+                } else if (currentState === GameState.PLAYING) {
+                    dropBomb();
+                } else if (currentState === GameState.NEW_HIGH_SCORE) {
+                    saveHighScore();
+                }
+            }
+            
+            if (e.code === 'Enter' && currentState === GameState.NEW_HIGH_SCORE) {
+                saveHighScore();
+            }
+        });
+
+        // Initialize
+        initCanvas();
+    </script>
+</body>
+</html>
+

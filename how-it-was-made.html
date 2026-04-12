@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>How AI Built Alien Bomber | TDF Microvisions</title>
+  <meta name="description" content="STEM showcase: How AI-assisted coding built a complete HTML5 game without traditional programming knowledge."/>
+  <style>
+    :root { --bg: #0a0a1a; --text: #e0e0ff; --accent: #7e57ff; --code-bg: #111827; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; max-width: 850px; margin: 0 auto; padding: 2rem; }
+    h1, h2, h3 { color: var(--accent); margin-top: 1.5rem; }
+    .container { background: #12122a; padding: 2rem; border-radius: 12px; border: 1px solid #333; margin-bottom: 2rem; }
+    code { background: var(--code-bg); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.95em; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 0.8rem; border: 1px solid #444; text-align: left; }
+    th { background: #1a1a3a; }
+    .back-btn { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    .back-btn:hover { filter: brightness(1.1); }
+    @media (max-width: 600px) { body { padding: 1rem; } .container { padding: 1.2rem; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👽 How AI Built "Alien Bomber"</h1>
+    <p><em>A STEM Innovation Showcase - Demonstrating AI-Assisted Creative Coding</em></p>
+
+    <h2>🎮 What You're Playing</h2>
+    <p><strong>Alien Bomber</strong> is a complete video game created through conversation with an AI assistant. No traditional coding knowledge was required—just clear descriptions of what the game should do!</p>
+
+    <h2>🤖 How AI Coding Works</h2>
+    <p><strong>The Simple Process:</strong><br>
+    1. <strong>DESCRIBE</strong> what you want → 2. <strong>AI writes</strong> the code → 3. <strong>You test & refine</strong> → 4. <strong>Play!</strong></p>
+
+    <h2>🧩 Key Code Concepts (Made Simple)</h2>
+    <h3>1. Game Loop - The Heartbeat</h3>
+    <code>function update() { clearScreen(); moveSpacecraft(); checkCollisions(); drawEverything(); repeat(); }</code>
+    <p>Like a flipbook animation—each frame creates smooth motion.</p>
+
+    <h3>2. State Management - Game Modes</h3>
+    <code>MENU → PLAYING → GAME_OVER/VICTORY → HIGH_SCORES</code>
+    <p>The game always knows which screen to show and what controls work.</p>
+
+    <h3>3. Collision Detection - Did We Hit Something?</h3>
+    <code>if (spacecraft.x < building.x + building.width && spacecraft.y > building.top) { BOOM! Game Over! }</code>
+
+    <h3>4. Progressive Damage - 3 Hits to Destroy</h3>
+    <code>building.hits++; // 1st hit: top 1/3 gone → 2nd hit: top 2/3 gone → 3rd hit: destroyed!</code>
+
+    <h3>5. LocalStorage - Remembering High Scores</h3>
+    <code>localStorage.setItem('alienBomberHighScores', JSON.stringify(scores));</code>
+
+    <h2>📊 What's Actually in the Code?</h2>
+    <table>
+      <tr><th>Component</th><th>Lines</th><th>What It Does</th></tr>
+      <tr><td>HTML Structure</td><td>~200</td><td>Creates all screens, buttons, and displays</td></tr>
+      <tr><td>CSS Styling</td><td>~300</td><td>Makes it look alien & futuristic with animations</td></tr>
+      <tr><td>JavaScript Logic</td><td>~800</td><td>All the game rules, movement, and scoring</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>~1,300</strong></td><td><strong>Complete playable game!</strong></td></tr>
+    </table>
+
+    <h2>🎯 What This Demonstrates</h2>
+    <ul>
+      <li>✅ <strong>AI as a Creative Partner:</strong> Describe your vision → AI helps build it. Focus on creativity, not syntax.</li>
+      <li>✅ <strong>Real Programming Concepts:</strong> Variables, functions, conditionals, loops, arrays.</li>
+      <li>✅ <strong>Problem-Solving Skills:</strong> Breaking big problems into small pieces, testing, debugging.</li>
+    </ul>
+
+    <h2>🚀 Try It Yourself!</h2>
+    <p><strong>Free Tools to Get Started:</strong><br>
+    AI Assistants: ChatGPT, Claude, Qwen, Cursor<br>
+    Code Editors: VS Code, Replit (runs in browser)<br>
+    Learning: freeCodeCamp, Code.org, Scratch</p>
+
+    <h2>💡 The Future of Coding</h2>
+    <p>AI doesn't replace programmers—it empowers creators.</p>
+    <table>
+      <tr><th>Before AI</th><th>With AI</th></tr>
+      <tr><td>Months learning syntax</td><td>Hours describing ideas</td></tr>
+      <tr><td>Complex setup</td><td>Instant prototypes</td></tr>
+      <tr><td>Solo debugging</td><td>Collaborative problem-solving</td></tr>
+      <tr><td>Barrier to entry</td><td>Anyone can create</td></tr>
+    </table>
+
+    <h2>🎓 Career Connections</h2>
+    <p>Game Development (Unity, Unreal) • Frontend Dev (HTML/CSS/JS) • Software Engineering • AI/ML Engineering</p>
+
+    <h2>🎯 Challenge for Students</h2>
+    <p>Can you describe a game idea that would take AI 5 iterations to perfect? Think about: What makes it fun? What rules does it need? How does the player win/lose?</p>
+
+    <p style="margin-top:2rem; opacity:0.8; font-size:0.9em;">Created for the STEM Innovation Fair 2025 • Demonstrating AI-Assisted Creative Coding</p>
+  </div>
+  <a class="back-btn" href="index.html">← Back to Games</a>
+</body>
+</html>
