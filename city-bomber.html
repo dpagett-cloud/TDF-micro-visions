@@ -443,7 +443,6 @@ document.addEventListener('touchstart', function(e) {
         const CANVAS_HEIGHT = 600;
         const PLANE_START_Y = 60;
         const PLANE_DESCENT = 35;
-        const MIN_ALTITUDE = 120;
         const BUILDING_HITS_TO_DESTROY = 3;
 
         // High Scores
@@ -717,10 +716,10 @@ document.addEventListener('touchstart', function(e) {
             const activeBuildings = buildings.filter(b => b && b.active).length;
             buildingsDisplay.textContent = activeBuildings;
             levelDisplay.textContent = currentLevel;
-            const altitude = Math.max(0, Math.floor((CANVAS_HEIGHT - MIN_ALTITUDE - planeY) / 2));
+            const altitude = Math.max(0, Math.floor((CANVAS_HEIGHT - planeY) / 2));
             altitudeDisplay.textContent = altitude;
             
-            if (planeY > CANVAS_HEIGHT - MIN_ALTITUDE - 40) {
+            if (altitude <= 30) {
                 altitudeWarning.classList.add('visible');
             } else {
                 altitudeWarning.classList.remove('visible');
@@ -878,15 +877,7 @@ document.addEventListener('touchstart', function(e) {
                 }
             }
             
-            if (planeY > CANVAS_HEIGHT - MIN_ALTITUDE) {
-                currentState = GameState.CRASH_ANIMATION;
-                crashAnimationTimer = 0;
-                createExplosion(planeX, planeY, 'large');
-                gameResult = 'crash';
-                crashAnimationLoop();
-                return;
-            }
-            
+            // Only explode when hitting a building, not from altitude alone
             drawFighterBomber(planeX, planeY, 1);
             
             if (bombCooldown > 0) {
