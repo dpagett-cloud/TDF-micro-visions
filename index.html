@@ -206,6 +206,7 @@
             opacity: 1;
         }
 
+        /* Hover effects remain unchanged */
         .panel::before {
             content: '';
             position: absolute;
@@ -308,7 +309,7 @@
             position: fixed;
             bottom: 0;
             left: 0;
-            right: 0;
+            right: 100%;
             z-index: 20;
             background: rgba(10, 11, 13, 0.9);
             border-top: 1px solid var(--border);
@@ -335,19 +336,6 @@
             background: var(--accent-orange);
             animation: pulse 2s ease-in-out infinite;
         }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .title-container {
-                padding: 0 20px;
-            }
-            h1 {
-                font-size: clamp(2rem, 10vw, 3.5rem);
-            }
-            .panels {
-                padding: 0 20px;
-            }
-        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -360,7 +348,7 @@
     <main class="content">
         <div class="title-container">
             <h1 class="title font-display" data-text="TDF MICROVISIONS">TDF MICROVISIONS</h1>
-            <p class="text-xl text-gray-400 mt-2">Official Project Hub | Classified System Access</p>
+            <p class="text-xl text-gray-400 mt-2">Project Repository Access / Command Center</p>
         </div>
 
         <!-- Section 1: Games Repository -->
@@ -371,27 +359,27 @@
             <div class="panels max-w-4xl">
                 
                 <!-- Card 1: Alien Bomber -->
-                <a href="https://tdf-microvisions.com/games/alien-bomber" class="panel" aria-label="Alien Bomber Game Details">
+                <a href="alien-bomber.html" class="panel" aria-label="Alien Bomber Game Details">
                     <div class="panel-content">
                         <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1L3 5v6c0 5.55 3.2 10.5 8 11.5 4.8-1 8-6-8-11v-6l9-4" /></svg>
                         <h3 class="panel-title font-display">ALIEN BOMBER</h3>
                         <p class="panel-desc">Planetary defense combat simulation. Prototype v1.2. Focus: Bio-Warfare.</p>
-                        <span class="panel-arrow">ACCESS MODULE PAGE<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        <span class="panel-arrow">VIEW GAME DIRECTORY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
                     </div>
                 </a>
 
                 <!-- Card 2: City Bomber -->
-                <a href="https://tdf-microvisions.com/games/city-bomber" class="panel" aria-label="City Bomber Game Details">
+                <a href="city-bomber.html" class="panel" aria-label="City Bomber Game Details">
                     <div class="panel-content">
                         <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l7 7-7 7M2 12h20" /></svg>
                         <h3 class="panel-title font-display">CITY BOMBER</h3>
                         <p class="panel-desc">Urban tactical simulator. Focus: Precision Strike & Infrastructure Damage.</p>
-                        <span class="panel-arrow">ACCESS MODULE PAGE<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        <span class="panel-arrow">VIEW GAME DIRECTORY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
                     </div>
                 </a>
 
                 <!-- Card 3: Development -->
-                <a href="https://tdf-microvisions.com/dev/development-logs" class="panel" aria-label="Game Development Workflow">
+                <a href="how-it-was-made.html" class="panel" aria-label="Game Development Workflow">
                     <div class="panel-content">
                         <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
                         <h3 class="panel-title font-display">DEVELOPMENT LOGS</h3>
@@ -410,7 +398,7 @@
             <div class="panels max-w-4xl">
                 
                 <!-- Card 1: Heart Model -->
-                <a href="https://tdf-microvisions.com/medical/heart-model" class="panel" aria-label="Heart Model Diagrams">
+                <a href="3D Heart Simulation - Final.html" class="panel" aria-label="Heart Model Diagrams">
                     <div class="panel-content">
                         <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22V16M20 12l-2-2M4 12l2-2"></svg>
                         <h3 class="panel-title font-display">HEART MODEL DIAGRAM</h3>
@@ -420,7 +408,7 @@
                 </a>
 
                 <!-- Card 2: Explanation Pages -->
-                <a href="https://tdf-microvisions.com/core-systems/explanation-pages" class="panel" aria-label="Technical Explanation Documentation">
+                <a href="3D Heart Simulation - How It Was Made.html" class="panel" aria-label="Technical Explanation Documentation">
                     <div class="panel-content">
                         <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 20h6M10 12h6M10 4h6"></svg>
                         <h3 class="panel-title font-display">CORE SYSTEM EXPLANATION</h3>
@@ -436,13 +424,13 @@
     <div class="status-bar">
         <div class="status-item">
             <div class="status-dot" aria-hidden="true"></div>
-            System Status: **ONLINE** | Repository Status: Active
+            System Status: **READY** | Repository Status: Live
         </div>
         <div class="status-item">
-            Time Stamp: 26.04.2026 // 16:07:00 GMT+1
+            Time Stamp: 26.04.2026 // 16:56:00 GMT+1
         </div>
         <div class="status-item">
-            Version: 3.1 (Live Deployment)
+            Version: 3.5 (Final Link Configuration)
         </div>
     </div>
 
