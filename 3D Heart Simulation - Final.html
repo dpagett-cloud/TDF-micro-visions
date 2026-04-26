@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realistic 3D Heart - Fixed & Labeled</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #080a10; font-family: 'Segoe UI', system-ui, sans-serif; }
+    #info {
+      position: absolute; top: 20px; left: 20px; color: #fff; background: rgba(10,15,20,0.75);
+      padding: 14px 18px; border-radius: 10px; pointer-events: none; user-select: none;
+      backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      max-width: 280px;
+    }
+    h1 { margin: 0 0 5px 0; font-size: 17px; font-weight: 600; letter-spacing: 0.5px; }
+    p { margin: 0; font-size: 12px; color: #aaa; line-height: 1.5; }
+    .label {
+      background: rgba(15,20,25,0.85); color: #fff; padding: 5px 9px; border-radius: 6px;
+      font-size: 12px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15);
+      white-space: nowrap; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .label.chamber { font-weight: 600; background: rgba(200,40,40,0.7); border-color: #ff6666; }
+    .label.vein { color: #66aaff; border-color: #4488cc; }
+    #loading {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: #080a10; color: #8ab4f8; font-size: 16px; font-weight: 500; z-index: 10;
+      transition: opacity 0.5s;
+    }
+    .loading-bar { width: 120px; height: 4px; background: #1e2636; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+    .loading-progress { width: 0%; height: 100%; background: #8ab4f8; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div id="loading">Initializing Heart Simulation<div class="loading-bar"><div class="loading-progress"></div></div></div>
+  <div id="info">
+    <h1>Realistic Cardiac Anatomy</h1>
+    <p>🖱️ Drag: Rotate • Scroll: Zoom • Right-Drag: Pan<br>
+    🔴 Arteries & Oxygenated | 🔵 Veins & Deoxygenated</p>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    // Loading UI
+    const loadProgress = document.querySelector('.loading-progress');
+    let loadW = 0;
+    const loadInt = setInterval(() => {
+      loadW = Math.min(100, loadW + 12);
+      loadProgress.style.width = loadW + '%';
+    }, 100);
+    setTimeout(() => { clearInterval(loadInt); loadProgress.style.width = '100%'; }, 600);
+
+    // Simple procedural noise texture (canvas-based, CORS-safe)
+    function createNoiseTexture(size = 256) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const img = ctx.createImageData(size, size);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = Math.random() * 255;
+        img.data[i] = img.data[i+1] = img.data[i+2] = v;
+        img.data[i+3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(1.5, 1.5);
+      return tex;
+    }
+
+    const noiseMap = createNoiseTexture();
+    
+    const matMuscle = new THREE.MeshPhysicalMaterial({
+      color: 0x8a1c1c,
+      roughnessMap: noiseMap,
+      roughness: 0.65,
+      metalness: 0.05,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.2,
+      bumpMap: noiseMap,
+      bumpScale: 0.05,
+      sheen: 0.15,
+      sheenRoughness: 0.9
+    });
+    const matArtery = matMuscle.clone(); matArtery.color.set(0xcc5533);
+    const matVein = matMuscle.clone(); matVein.color.set(0x3a4d7a);
+
+    // Scene & Renderer
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080a10);
+    scene.fog = new THREE.Fog(0x080a10, 14, 32);
+
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(5, 3, 11);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    document.body.appendChild(renderer.domElement);
+
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0';
+    labelRenderer.domElement.style.pointerEvents = 'none';
+    document.body.appendChild(labelRenderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 6;
+    controls.maxDistance = 20;
+    controls.target.set(0, -0.2, 0);
+
+    // --- Lighting (FIXED: no method chaining on setPosition) ---
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x112233, 0.6);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.4);
+    dirLight.position.set(8, 10, 6);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.set(2048, 2048);
+    dirLight.shadow.camera.left = -7;
+    dirLight.shadow.camera.right = 7;
+    dirLight.shadow.camera.top = 7;
+    dirLight.shadow.camera.bottom = -7;
+    scene.add(dirLight);
+
+    const rimLight = new THREE.DirectionalLight(0x4488ff, 0.7);
+    rimLight.position.set(-6, 2, -8);
+    scene.add(rimLight);
+
+    const fillLight = new THREE.PointLight(0x223344, 1, 12);
+    fillLight.position.set(0, -4, 3);
+    scene.add(fillLight);
+
+    const heart = new THREE.Group();
+    scene.add(heart);
+
+    // Helper to build tubes
+    const addTube = (pts, r, mat, group) => {
+      const curve = new THREE.CatmullRomCurve3(pts);
+      const geometry = new THREE.TubeGeometry(curve, 48, r, 12, false);
+      const mesh = new THREE.Mesh(geometry, mat);
+      mesh.castShadow = true;
+      if (group) group.add(mesh); else scene.add(mesh);
+      return mesh;
+    };
+
+    // --- CHAMBERS ---
+    const chamberGeo = new THREE.SphereGeometry(1, 32, 32);
+    
+    // 1. Left Ventricle
+    const lv = new THREE.Mesh(chamberGeo, matMuscle);
+    lv.position.set(-1.3, -1.0, 0.6);
+    lv.scale.set(1.15, 1.6, 1.15);
+    heart.add(lv);
+    
+    // 2. Right Ventricle
+    const rv = new THREE.Mesh(chamberGeo, matMuscle);
+    rv.position.set(1.0, -0.9, 0.8);
+    rv.scale.set(1.25, 1.5, 0.9);
+    heart.add(rv);
+    
+    // 3. Left Atrium
+    const la = new THREE.Mesh(chamberGeo, matMuscle);
+    la.position.set(-1.5, 0.9, -0.5);
+    la.scale.set(1.05, 1.2, 0.9);
+    heart.add(la);
+    
+    // 4. Right Atrium
+    const ra = new THREE.Mesh(chamberGeo, matMuscle);
+    ra.position.set(1.4, 0.8, -0.4);
+    ra.scale.set(1.1, 1.25, 0.85);
+    heart.add(ra);
+
+    // Septum
+    const sept = new THREE.Mesh(new THREE.BoxGeometry(0.25, 3.6, 1.5), matMuscle);
+    sept.position.set(0, -0.1, 0.1);
+    heart.add(sept);
+    
+    // Enable shadows on all heart parts
+    heart.traverse(obj => {
+      if (obj.isMesh) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
+    });
+
+    // --- CONNECTED VESSELS ---
+    
+    // SVC -> RA (Blue)
+    addTube([
+      new THREE.Vector3(1.4, 2.8, -0.4),
+      new THREE.Vector3(1.4, 2.0, -0.4),
+      new THREE.Vector3(1.4, 1.3, -0.35)
+    ], 0.18, matVein);
+    
+    // IVC -> RA (Blue)
+    addTube([
+      new THREE.Vector3(1.2, -2.4, -0.6),
+      new THREE.Vector3(1.3, -1.2, -0.5),
+      new THREE.Vector3(1.4, 0.2, -0.45)
+    ], 0.2, matVein);
+    
+    // Pulmonary Veins -> LA (Red)
+    addTube([
+      new THREE.Vector3(-2.8, 1.2, -0.2),
+      new THREE.Vector3(-2.3, 1.0, -0.45),
+      new THREE.Vector3(-1.9, 0.9, -0.5)
+    ], 0.12, matArtery);
+    addTube([
+      new THREE.Vector3(-3.0, 1.6, 0.2),
+      new THREE.Vector3(-2.5, 1.4, -0.1),
+      new THREE.Vector3(-2.0, 1.1, -0.45)
+    ], 0.12, matArtery);
+    
+    // Aorta -> LV (Red)
+    addTube([
+      new THREE.Vector3(-1.2, -0.2, 0.5),
+      new THREE.Vector3(-1.1, 1.0, 0.3),
+      new THREE.Vector3(-0.5, 2.2, -0.2),
+      new THREE.Vector3(0.8, 2.8, -0.5),
+      new THREE.Vector3(2.0, 2.0, -0.8),
+      new THREE.Vector3(2.2, 0.5, -1.0)
+    ], 0.22, matArtery);
+    
+    // Pulmonary Trunk -> RV (Blue)
+    addTube([
+      new THREE.Vector3(1.0, 0.0, 0.8),
+      new THREE.Vector3(0.9, 1.0, 1.2),
+      new THREE.Vector3(0.5, 1.8, 1.8),
+      new THREE.Vector3(-0.2, 2.4, 2.2)
+    ], 0.18, matVein);
+    // Bifurcation
+    addTube([
+      new THREE.Vector3(-0.2, 2.4, 2.2),
+      new THREE.Vector3(-0.8, 2.6, 1.6),
+      new THREE.Vector3(-1.2, 2.8, 1.0)
+    ], 0.13, matVein);
+    addTube([
+      new THREE.Vector3(-0.2, 2.4, 2.2),
+      new THREE.Vector3(0.6, 2.6, 2.4),
+      new THREE.Vector3(1.5, 2.7, 2.6)
+    ], 0.13, matVein);
+
+    // Coronaries (simplified)
+    addTube([
+      new THREE.Vector3(-1.2, 1.2, 0.4),
+      new THREE.Vector3(-1.8, 0.2, 0.7),
+      new THREE.Vector3(-1.5, -0.8, 1.0),
+      new THREE.Vector3(-0.5, -1.6, 0.6)
+    ], 0.04, matArtery);
+    addTube([
+      new THREE.Vector3(0.9, 1.0, 0.6),
+      new THREE.Vector3(1.6, 0.0, 0.9),
+      new THREE.Vector3(1.0, -1.0, 1.1),
+      new THREE.Vector3(0.2, -1.8, 0.5)
+    ], 0.035, matArtery);
+
+    // --- LABELS ---
+    const makeLabel = (text, position, className = '') => {
+      const div = document.createElement('div');
+      div.className = 'label ' + className;
+      div.textContent = text;
+      const label = new CSS2DObject(div);
+      label.position.copy(position);
+      heart.add(label);
+      return label;
+    };
+
+    makeLabel('Left Ventricle', new THREE.Vector3(-2.2, -1.2, 1.4), 'chamber');
+    makeLabel('Right Ventricle', new THREE.Vector3(1.8, -1.1, 1.4), 'chamber');
+    makeLabel('Left Atrium', new THREE.Vector3(-2.5, 1.2, -1.0), 'chamber');
+    makeLabel('Right Atrium', new THREE.Vector3(2.3, 1.0, -1.0), 'chamber');
+    makeLabel('Aorta', new THREE.Vector3(2.8, 1.5, -1.0), '');
+    makeLabel('Superior Vena Cava', new THREE.Vector3(2.0, 3.0, -0.2), 'vein');
+    makeLabel('Inferior Vena Cava', new THREE.Vector3(1.8, -2.6, -1.0), 'vein');
+    makeLabel('Pulmonary Artery', new THREE.Vector3(-0.5, 2.6, 2.5), 'vein');
+
+    // --- BLOOD FLOW PARTICLES ---
+    const bloodParticles = [];
+    const spawnBlood = (points, color, count, speed, radius = 0.09) => {
+      const curve = new THREE.CatmullRomCurve3(points);
+      
+      // Visible vessel path
+      const tubeGeo = new THREE.TubeGeometry(curve, 48, 0.12, 8, false);
+      const tubeMat = new THREE.MeshBasicMaterial({ 
+        color: color, 
+        transparent: true, 
+        opacity: 0.3, 
+        depthWrite: false 
+      });
+      scene.add(new THREE.Mesh(tubeGeo, tubeMat));
+      
+      // Particles
+      for (let i = 0; i < count; i++) {
+        const geo = new THREE.SphereGeometry(radius, 8, 8);
+        const mat = new THREE.MeshPhysicalMaterial({
+          color: color,
+          clearcoat: 0.6,
+          emissive: new THREE.Color(color),
+          emissiveIntensity: 0.4
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.castShadow = true;
+        scene.add(mesh);
+        bloodParticles.push({ mesh, curve, t: i / count, speed });
+      }
+    };
+
+    // Deoxygenated path (blue)
+    spawnBlood([
+      new THREE.Vector3(1.4, 2.8, -0.4),
+      new THREE.Vector3(1.4, 0.8, -0.4),
+      new THREE.Vector3(1.0, -0.9, 0.8),
+      new THREE.Vector3(0.5, 1.8, 1.8)
+    ], '#4488ff', 14, 0.35);
+    
+    // Oxygenated path (red)
+    spawnBlood([
+      new THREE.Vector3(-2.8, 1.2, -0.2),
+      new THREE.Vector3(-1.5, 0.9, -0.5),
+      new THREE.Vector3(-1.2, -1.0, 0.6),
+      new THREE.Vector3(0.8, 2.8, -0.5),
+      new THREE.Vector3(2.2, 0.5, -1.0)
+    ], '#ff4444', 18, 0.4);
+
+    // --- ANIMATION LOOP ---
+    const clock = new THREE.Clock();
+    
+    // Hide loading screen
+    document.getElementById('loading').style.opacity = '0';
+    setTimeout(() => {
+      const loading = document.getElementById('loading');
+      if (loading && loading.parentNode) loading.parentNode.removeChild(loading);
+    }, 500);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
+      
+      // Heartbeat rhythm
+      const cycle = (time * 1.8) % 1;
+      const beatFactor = Math.pow(Math.sin(cycle * Math.PI * 2), 2) * 0.12;
+
+      // Animate chambers (ventricles contract more than atria)
+      [lv, rv].forEach(mesh => {
+        const s = 1.0 - beatFactor; // squeeze
+        mesh.scale.set(1.15 * s, 1.6 * s, 1.15 * s);
+      });
+      [la, ra].forEach(mesh => {
+        const s = 1.0 - beatFactor * 0.5; // lighter contraction
+        mesh.scale.set(1.05 * s, 1.2 * s, 0.9 * s);
+      });
+
+      // Animate blood particles
+      bloodParticles.forEach(p => {
+        p.t = (p.t + p.speed * 0.014) % 1;
+        const pos = p.curve.getPointAt(p.t);
+        const tangent = p.curve.getTangentAt(p.t);
+        p.mesh.position.copy(pos);
+        p.mesh.lookAt(pos.clone().add(tangent));
+      });
+
+      controls.update();
+      renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Start animation
+    animate();
+  </script>
+</body>
+</html>

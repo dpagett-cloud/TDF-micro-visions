@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Heart Simulation - STEM Innovation Fair</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    
+    h1 {
+      color: #e74c3c;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 1.2em;
+      font-style: italic;
+    }
+    
+    .section {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    h2 {
+      color: #3498db;
+      font-size: 1.8em;
+      margin-bottom: 15px;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+    
+    h3 {
+      color: #9b59b6;
+      font-size: 1.3em;
+      margin: 20px 0 10px 0;
+    }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+      border-left: 5px solid #d63031;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+    
+    .tech-box {
+      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+    }
+    
+    .tech-box h3 {
+      color: white;
+      margin-top: 0;
+    }
+    
+    ul, ol {
+      margin-left: 30px;
+      margin-bottom: 15px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    .fun-fact {
+      background: #00b894;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    
+    .diagram {
+      background: #f8f9fa;
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .heart-diagram {
+      font-size: 4em;
+      margin: 10px 0;
+    }
+    
+    .code-snippet {
+      background: #2d3436;
+      color: #dfe6e9;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      margin: 15px 0;
+      overflow-x: auto;
+    }
+    
+    .badge {
+      display: inline-block;
+      background: #e74c3c;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin: 5px;
+      font-weight: bold;
+    }
+    
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    
+    .interactive-demo {
+      background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .step {
+      background: white;
+      color: #333;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #e84393;
+    }
+    
+    .step-number {
+      display: inline-block;
+      background: #e84393;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    
+    footer {
+      text-align: center;
+      color: white;
+      padding: 20px;
+      margin-top: 30px;
+      font-size: 0.9em;
+    }
+    
+    .emoji {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span class="emoji">❤️</span> 3D Heart Simulation</h1>
+      <p class="subtitle">Bringing Biology to Life with Computer Graphics</p>
+      <p style="margin-top: 15px; font-size: 1.1em;">
+        <span class="badge">STEM Innovation</span>
+        <span class="badge">3D Modeling</span>
+        <span class="badge">Medical Science</span>
+        <span class="badge">Programming</span>
+      </p>
+    </header>
+
+    <div class="section">
+      <h2>🎯 What Is This Model?</h2>
+      <p>
+        This is an <strong>interactive 3D computer model</strong> of a human heart that you can rotate, zoom, and explore! 
+        It shows how blood flows through the four chambers of the heart in real-time, with realistic pumping motion 
+        and color-coded blood vessels.
+      </p>
+      
+      <div class="highlight-box">
+        <strong>🎮 Try It Yourself!</strong><br>
+        • <strong>Left-click + drag</strong> to rotate the heart<br>
+        • <strong>Scroll wheel</strong> to zoom in and out<br>
+        • <strong>Right-click + drag</strong> to pan around<br>
+        • Watch the red and blue particles showing blood flow!
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔬 How Does It Work?</h2>
+      
+      <div class="grid-2">
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>3D Shapes</strong><br>
+          The heart is built from mathematical shapes called "spheres" and "tubes" that are stretched and positioned to look like real heart chambers and blood vessels.
+        </div>
+        
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Materials</strong><br>
+          Special computer "paint" makes the heart look like real muscle - slightly shiny, with tiny bumps and texture that mimic living tissue.
+        </div>
+        
+        <div class="step">
+          <span class="step-number">3</span>
+          <strong>Animation</strong><br>
+          The chambers squeeze and relax 60-100 times per minute (just like a real heart!) using mathematical formulas that create the heartbeat rhythm.
+        </div>
+        
+        <div class="step">
+          <span class="step-number">4</span>
+          <strong>Blood Flow</strong><br>
+          Tiny glowing spheres travel along curved paths through the vessels, showing how oxygen-rich (red) and oxygen-poor (blue) blood circulate.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>💻 The Technology Behind It</h2>
+      
+      <div class="tech-box">
+        <h3>🌐 Web Technologies</h3>
+        <p>This model runs entirely in your web browser using:</p>
+        <ul style="margin-top: 10px;">
+          <li><strong>HTML5</strong> - The structure of the webpage</li>
+          <li><strong>WebGL</strong> - 3D graphics powered by your computer's graphics card</li>
+          <li><strong>JavaScript</strong> - The programming language that makes everything move</li>
+          <li><strong>Three.js</strong> - A special library that makes 3D programming easier</li>
+        </ul>
+      </div>
+
+      <div class="diagram">
+        <h3>📐 The Math Behind the Magic</h3>
+        <div class="heart-diagram">❤️</div>
+        <p><strong>Geometry:</strong> Spheres, cylinders, and curves<br>
+        <strong>Trigonometry:</strong> Sine waves create the heartbeat rhythm<br>
+        <strong>Physics:</strong> Light reflection and shadow calculations<br>
+        <strong>Algorithms:</strong> Particle systems for blood flow</p>
+      </div>
+
+      <div class="code-snippet">
+// Simplified example of heartbeat animation<br>
+function animateHeart() {<br>
+&nbsp;&nbsp;const time = Date.now() * 0.001;<br>
+&nbsp;&nbsp;const beat = Math.sin(time * 2) * 0.1;<br>
+&nbsp;&nbsp;heart.scale.set(1 + beat, 1 - beat, 1 + beat);<br>
+}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🫀 The Science: How Your Heart Works</h2>
+      
+      <h3>The Four Chambers:</h3>
+      <ol>
+        <li><strong style="color: #e74c3c;">Right Atrium</strong> - Receives oxygen-poor blood from the body</li>
+        <li><strong style="color: #e74c3c;">Right Ventricle</strong> - Pumps blood to the lungs</li>
+        <li><strong style="color: #c0392b;">Left Atrium</strong> - Receives oxygen-rich blood from lungs</li>
+        <li><strong style="color: #c0392b;">Left Ventricle</strong> - The strongest chamber! Pumps blood to the entire body</li>
+      </ol>
+
+      <div class="highlight-box">
+        <strong>🎨 Color Code:</strong><br>
+        🔵 <strong>Blue vessels</strong> = Deoxygenated blood (going to lungs)<br>
+        🔴 <strong>Red vessels</strong> = Oxygenated blood (going to body)
+      </div>
+
+      <h3>Major Blood Vessels:</h3>
+      <ul>
+        <li><strong>Superior/Inferior Vena Cava</strong> - Bring blood from body to heart</li>
+        <li><strong>Pulmonary Artery</strong> - Takes blood to lungs (only BLUE artery!)</li>
+        <li><strong>Pulmonary Veins</strong> - Bring oxygenated blood from lungs (only RED veins!)</li>
+        <li><strong>Aorta</strong> - Main artery carrying blood to the body</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>🎓 What You're Learning</h2>
+      
+      <div class="grid-2">
+        <div>
+          <h3>📚 Science (Biology)</h3>
+          <ul>
+            <li>Human anatomy</li>
+            <li>Circulatory system</li>
+            <li>How organs function</li>
+            <li>Blood oxygenation</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3>🔢 Technology</h3>
+          <ul>
+            <li>3D modeling</li>
+            <li>Computer graphics</li>
+            <li>Programming logic</li>
+            <li>Web development</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3>📐 Engineering</h3>
+          <ul>
+            <li>System design</li>
+            <li>Problem solving</li>
+            <li>Simulation modeling</li>
+            <li>Visual design</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3>🧮 Mathematics</h3>
+          <ul>
+            <li>Geometry</li>
+            <li>Trigonometry</li>
+            <li>Algorithms</li>
+            <li>Spatial reasoning</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🚀 Innovation Features</h2>
+      
+      <div class="interactive-demo">
+        <h3>What Makes This Special?</h3>
+        <p>This isn't just a picture or video - it's a <strong>real-time simulation</strong>!</p>
+      </div>
+      
+      <ul>
+        <li><strong>✅ Interactive:</strong> You control the view - rotate, zoom, explore!</li>
+        <li><strong>✅ Accurate:</strong> Based on real human heart anatomy</li>
+        <li><strong>✅ Educational:</strong> Labels show every important part</li>
+        <li><strong>✅ Dynamic:</strong> Actually beats and pumps like a real heart</li>
+        <li><strong>✅ Accessible:</strong> Runs in any web browser - no special software needed!</li>
+        <li><strong>✅ Visual:</strong> Color-coded system makes learning easier</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>💡 Fun Facts!</h2>
+      
+      <div class="fun-fact">
+        <span class="emoji">💓</span> Your heart beats about 100,000 times per day!
+      </div>
+      
+      <div class="fun-fact">
+        <span class="emoji">🏃</span> In one day, your blood travels about 12,000 miles - that's like driving across the USA 4 times!
+      </div>
+      
+      <div class="fun-fact">
+        <span class="emoji">⚡</span> The heart has its own electrical system that keeps it beating, even outside the body!
+      </div>
+      
+      <div class="fun-fact">
+        <span class="emoji">🎮</span> This 3D model uses the same technology as video games and virtual reality!
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔧 How It Was Built</h2>
+      
+      <h3>Step-by-Step Process:</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <strong>Research:</strong> Studied real heart anatomy from medical diagrams and 3D scans
+      </div>
+      
+      <div class="step">
+        <span class="step-number">2</span>
+        <strong>Modeling:</strong> Created 3D shapes for each chamber and vessel using mathematical equations
+      </div>
+      
+      <div class="step">
+        <span class="step-number">3</span>
+        <strong>Texturing:</strong> Generated realistic muscle texture using computer algorithms
+      </div>
+      
+      <div class="step">
+        <span class="step-number">4</span>
+        <strong>Animation:</strong> Programmed the heartbeat rhythm using sine wave mathematics
+      </div>
+      
+      <div class="step">
+        <span class="step-number">5</span>
+        <strong>Particle System:</strong> Created blood flow using hundreds of tiny moving spheres
+      </div>
+      
+      <div class="step">
+        <span class="step-number">6</span>
+        <strong>Lighting:</strong> Added realistic shadows and reflections to make it look 3D
+      </div>
+      
+      <div class="step">
+        <span class="step-number">7</span>
+        <strong>Testing:</strong> Made sure it runs smoothly on different computers and browsers
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🌟 Real-World Applications</h2>
+      <p>Technology like this is used in:</p>
+      <ul>
+        <li><strong>Medical Training:</strong> Doctors practice on 3D models before real surgeries</li>
+        <li><strong>Patient Education:</strong> Helping patients understand their conditions</li>
+        <li><strong>Research:</strong> Scientists simulate blood flow to study heart disease</li>
+        <li><strong>Virtual Reality:</strong> Immersive anatomy lessons for students</li>
+        <li><strong>Video Games:</strong> Creating realistic characters and environments</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>🎯 Challenge Yourself!</h2>
+      <div class="highlight-box">
+        <strong>Think About It:</strong><br>
+        1. Why do you think the left ventricle is thicker than the right?<br>
+        2. What would happen if the heart didn't have valves?<br>
+        3. How is this 3D model different from looking at a diagram in a book?<br>
+        4. Can you think of other body parts that could be modeled in 3D?
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>Created for STEM Innovation Fair 2026</strong></p>
+      <p>Combining Biology + Technology + Mathematics + Engineering</p>
+      <p style="margin-top: 15px; font-size: 0.9em;">
+        <em>"The heart has its reasons which reason knows nothing of." - Blaise Pascal</em>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
