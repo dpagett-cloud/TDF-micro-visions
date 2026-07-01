@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hourglass Timer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-600-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #1a1530 0%, #0a0815 100%);
+    color: #e8e4f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+  .container {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #d4b896;
+    text-align: center;
+  }
+  .timer-display {
+    font-size: 3.2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+    color: #f5e6c8;
+    text-shadow: 0 0 30px rgba(212, 184, 150, 0.3);
+  }
+  .hourglass-wrap {
+    position: relative;
+    width: 260px;
+    height: 360px;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+  }
+  .hourglass-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .controls {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+  }
+  .time-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .time-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    max-width: 100px;
+  }
+  .time-group label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #9a8fb0;
+  }
+  .time-group input {
+    width: 100%;
+    padding: 12px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(212, 184, 150, 0.2);
+    border-radius: 10px;
+    color: #f5e6c8;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .time-group input:focus {
+    border-color: #d4b896;
+    box-shadow: 0 0 0 3px rgba(212, 184, 150, 0.15);
+  }
+  .time-group input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .buttons {
+    display: flex;
+    gap: 10px;
+  }
+  button {
+    flex: 1;
+    padding: 13px 16px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-start {
+    background: linear-gradient(135deg, #d4b896 0%, #b89878 100%);
+    color: #1a1530;
+  }
+  .btn-start:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(212, 184, 150, 0.3);
+  }
+  .btn-pause {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e8e4f0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .btn-pause:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .btn-reset {
+    background: rgba(255, 100, 100, 0.1);
+    color: #ff9090;
+    border: 1px solid rgba(255, 100, 100, 0.2);
+  }
+  .btn-reset:hover:not(:disabled) {
+    background: rgba(255, 100, 100, 0.18);
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .status {
+    font-size: 0.8rem;
+    color: #9a8fb0;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    min-height: 1.2em;
+  }
+  .status.finished {
+    color: #ffb070;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes fall {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(var(--fall-dist, 120px)); opacity: 0.3; }
+  }
+  .sand-particle {
+    animation: fall linear infinite;
+  }
+  .flip-anim {
+    animation: flip 0.8s ease-in-out;
+  }
+  @keyframes flip {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(180deg); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Hourglass Timer</h1>
+  <div class="timer-display" id="timerDisplay">00:00:00</div>
+  <div class="hourglass-wrap" id="hourglassWrap">
+    <svg class="hourglass-svg" viewBox="0 0 260 360" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="frameGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8b6f47"/>
+          <stop offset="50%" stop-color="#d4b896"/>
+          <stop offset="100%" stop-color="#6b5230"/>
+        </linearGradient>
+        <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+          <stop offset="50%" stop-color="rgba(255,255,255,0.05)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
+        </linearGradient>
+        <linearGradient id="sandGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f5d896"/>
+          <stop offset="100%" stop-color="#c89858"/>
+        </linearGradient>
+        <linearGradient id="sandGradBottom" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d4a868"/>
+          <stop offset="100%" stop-color="#a87838"/>
+        </linearGradient>
+        <clipPath id="topGlassClip">
+          <polygon points="40,50 220,50 138,175 122,175"/>
+        </clipPath>
+        <clipPath id="bottomGlassClip">
+          <polygon points="122,185 138,185 220,310 40,310"/>
+        </clipPath>
+      </defs>
+
+      <!-- Top frame -->
+      <rect x="20" y="20" width="220" height="30" rx="6" fill="url(#frameGrad)" stroke="#4a3820" stroke-width="1.5"/>
+      <rect x="20" y="20" width="220" height="6" rx="3" fill="rgba(255,255,255,0.2)"/>
+
+      <!-- Bottom frame -->
+      <rect x="20" y="310" width="220" height="30" rx="6" fill="url(#frameGrad)" stroke="#4a3820" stroke-width="1.5"/>
+      <rect x="20" y="310" width="220" height="6" rx="3" fill="rgba(255,255,255,0.2)"/>
+
+      <!-- Side pillars -->
+      <rect x="28" y="45" width="8" height="270" fill="url(#frameGrad)" stroke="#4a3820" stroke-width="1"/>
+      <rect x="224" y="45" width="8" height="270" fill="url(#frameGrad)" stroke="#4a3820" stroke-width="1"/>
+
+      <!-- Glass outline - top -->
+      <polygon points="40,50 220,50 138,175 122,175" fill="url(#glassGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      <!-- Glass outline - bottom -->
+      <polygon points="122,185 138,185 220,310 40,310" fill="url(#glassGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+
+      <!-- Top sand -->
+      <polygon id="topSand" points="40,50 220,50 138,175 122,175" fill="url(#sandGrad)" clip-path="url(#topGlassClip)"/>
+
+      <!-- Bottom sand -->
+      <polygon id="bottomSand" points="122,185 138,185 138,185 122,185" fill="url(#sandGradBottom)" clip-path="url(#bottomGlassClip)"/>
+
+      <!-- Falling stream -->
+      <g id="fallingStream">
+        <rect x="128" y="175" width="4" height="10" fill="#e8c078" opacity="0.9"/>
+      </g>
+
+      <!-- Falling particles -->
+      <g id="particles"></g>
+
+      <!-- Glass highlight -->
+      <polygon points="50,55 70,55 130,170 125,170" fill="rgba(255,255,255,0.12)"/>
+      <polygon points="130,190 135,190 70,305 50,305" fill="rgba(255,255,255,0.12)"/>
+
+      <!-- Neck connector -->
+      <rect x="122" y="175" width="16" height="10" fill="rgba(0,0,0,0.3)"/>
+    </svg>
+  </div>
+  <div class="status" id="status">Set your time below</div>
+  <div class="controls">
+    <div class="time-inputs">
+      <div class="time-group">
+        <label for="hours">Hours</label>
+        <input type="number" id="hours" min="0" max="23" value="0">
+      </div>
+      <div class="time-group">
+        <label for="minutes">Minutes</label>
+        <input type="number" id="minutes" min="0" max="59" value="1">
+      </div>
+      <div class="time-group">
+        <label for="seconds">Seconds</label>
+        <input type="number" id="seconds" min="0" max="59" value="0">
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="btn-start" id="startBtn">Start</button>
+      <button class="btn-pause" id="pauseBtn" disabled>Pause</button>
+      <button class="btn-reset" id="resetBtn">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const hoursInput = document.getElementById('hours');
+  const minutesInput = document.getElementById('minutes');
+  const secondsInput = document.getElementById('seconds');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const statusEl = document.getElementById('status');
+  const topSand = document.getElementById('topSand');
+  const bottomSand = document.getElementById('bottomSand');
+  const fallingStream = document.getElementById('fallingStream');
+  const particlesGroup = document.getElementById('particles');
+  const hourglassWrap = document.getElementById('hourglassWrap');
+
+  // Hourglass geometry
+  const TOP_Y = 50, NECK_Y = 175, NECK_Y2 = 185, BOTTOM_Y = 310;
+  const TOP_WIDTH = 180; // 220-40
+  const NECK_WIDTH = 16; // 138-122
+  const CENTER_X = 130;
+  const TOTAL_HEIGHT = NECK_Y - TOP_Y; // 125
+
+  let totalMs = 0;
+  let remainingMs = 0;
+  let startTime = 0;
+  let pausedRemaining = 0;
+  let rafId = null;
+  let running = false;
+  let paused = false;
+  let finished = false;
+
+  // Create falling particles
+  const NUM_PARTICLES = 8;
+  const particles = [];
+  for (let i = 0; i < NUM_PARTICLES; i++) {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', '1.8');
+    circle.setAttribute('fill', '#f0c878');
+    circle.setAttribute('cx', 128 + Math.random() * 4);
+    circle.setAttribute('opacity', '0');
+    particlesGroup.appendChild(circle);
+    particles.push({
+      el: circle,
+      offset: i / NUM_PARTICLES,
+      speed: 0.6 + Math.random() * 0.4
+    });
+  }
+
+  function formatTime(ms) {
+    if (ms < 0) ms = 0;
+    const totalSec = Math.ceil(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  function getProgress() {
+    if (totalMs === 0) return 0;
+    return Math.max(0, Math.min(1, 1 - remainingMs / totalMs));
+  }
+
+  function updateHourglass(progress) {
+    // Top sand: drains from top. The top surface moves down.
+    // At progress 0: full (polygon from TOP_Y to NECK_Y)
+    // At progress 1: empty (no sand)
+    // Top surface y = TOP_Y + progress * TOTAL_HEIGHT
+    // Width at that y: linearly interpolates from TOP_WIDTH to NECK_WIDTH
+    const topSurfaceY = TOP_Y + progress * TOTAL_HEIGHT;
+    const topWidth = TOP_WIDTH - progress * (TOP_WIDTH - NECK_WIDTH);
+    const topLeft = CENTER_X - topWidth / 2;
+    const topRight = CENTER_X + topWidth / 2;
+    const neckLeft = CENTER_X - NECK_WIDTH / 2;
+    const neckRight = CENTER_X + NECK_WIDTH / 2;
+
+    if (progress >= 0.999) {
+      topSand.setAttribute('points', `${neckLeft},${NECK_Y} ${neckRight},${NECK_Y} ${neckRight},${NECK_Y} ${neckLeft},${NECK_Y}`);
+    } else {
+      topSand.setAttribute('points', `${topLeft},${topSurfaceY} ${topRight},${topSurfaceY} ${neckRight},${NECK_Y} ${neckLeft},${NECK_Y}`);
+    }
+
+    // Bottom sand: fills from bottom up
+    // At progress 0: empty
+    // At progress 1: full (polygon from NECK_Y2 to BOTTOM_Y)
+    // Top surface y = BOTTOM_Y - progress * TOTAL_HEIGHT
+    const bottomSurfaceY = BOTTOM_Y - progress * TOTAL_HEIGHT;
+    const bottomWidth = TOP_WIDTH - progress * (TOP_WIDTH - NECK_WIDTH);
+    const botLeft = CENTER_X - bottomWidth / 2;
+    const botRight = CENTER_X + bottomWidth / 2;
+    const botFullLeft = CENTER_X - TOP_WIDTH / 2;
+    const botFullRight = CENTER_X + TOP_WIDTH / 2;
+
+    if (progress <= 0.001) {
+      bottomSand.setAttribute('points', `${neckLeft},${NECK_Y2} ${neckRight},${NECK_Y2} ${neckRight},${NECK_Y2} ${neckLeft},${NECK_Y2}`);
+    } else {
+      bottomSand.setAttribute('points', `${botLeft},${bottomSurfaceY} ${botRight},${bottomSurfaceY} ${botFullRight},${BOTTOM_Y} ${botFullLeft},${BOTTOM_Y}`);
+    }
+
+    // Falling stream visibility
+    if (running && !paused && progress < 0.999) {
+      const streamEndY = bottomSurfaceY;
+      fallingStream.style.display = '';
+      fallingStream.querySelector('rect').setAttribute('y', NECK_Y);
+      fallingStream.querySelector('rect').setAttribute('height', Math.max(0, streamEndY - NECK_Y));
+    } else {
+      fallingStream.style.display = 'none';
+    }
+
+    // Particles
+    if (running && !paused && progress < 0.999) {
+      const fallDist = Math.max(0, bottomSurfaceY - NECK_Y);
+      particles.forEach(p => {
+        p.el.style.display = '';
+      });
+    } else {
+      particles.forEach(p => {
+        p.el.style.display = 'none';
+      });
+    }
+  }
+
+  function animateParticles(timestamp) {
+    if (!running || paused || finished) return;
+    const progress = getProgress();
+    if (progress >= 0.999) return;
+
+    const bottomSurfaceY = BOTTOM_Y - progress * TOTAL_HEIGHT;
+    const fallDist = bottomSurfaceY - NECK_Y2;
+
+    particles.forEach(p => {
+      // Each particle cycles through the fall distance
+      const t = ((timestamp / 1000 * p.speed) + p.offset) % 1;
+      const y = NECK_Y2 + t * fallDist;
+      p.el.setAttribute('cy', y);
+      p.el.setAttribute('opacity', t < 0.1 ? t * 10 : (t > 0.9 ? (1 - t) * 10 : 0.9));
+    });
+  }
+
+  function tick() {
+    const now = performance.now();
+    remainingMs = pausedRemaining - (now - startTime);
+    if (remainingMs <= 0) {
+      remainingMs = 0;
+      finished = true;
+      running = false;
+      paused = false;
+      timerDisplay.textContent = '00:00:00';
+      updateHourglass(1);
+      statusEl.textContent = 'Time\'s up!';
+      statusEl.classList.add('finished');
+      startBtn.disabled = true;
+      pauseBtn.disabled = true;
+      enableInputs(true);
+      // Flip animation
+      hourglassWrap.classList.add('flip-anim');
+      setTimeout(() => hourglassWrap.classList.remove('flip-anim'), 800);
+      return;
+    }
+    timerDisplay.textContent = formatTime(remainingMs);
+    updateHourglass(getProgress());
+    animateParticles(now);
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function enableInputs(enabled) {
+    hoursInput.disabled = !enabled;
+    minutesInput.disabled = !enabled;
+    secondsInput.disabled = !enabled;
+  }
+
+  function getInputMs() {
+    const h = parseInt(hoursInput.value) || 0;
+    const m = parseInt(minutesInput.value) || 0;
+    const s = parseInt(secondsInput.value) || 0;
+    return (h * 3600 + m * 60 + s) * 1000;
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (finished) {
+      resetTimer();
+      return;
+    }
+    if (paused) {
+      // Resume
+      paused = false;
+      startTime = performance.now();
+      running = true;
+      pauseBtn.textContent = 'Pause';
+      statusEl.textContent = 'Running';
+      statusEl.classList.remove('finished');
+      rafId = requestAnimationFrame(tick);
+      return;
+    }
+    const ms = getInputMs();
+    if (ms <= 0) {
+      statusEl.textContent = 'Please set a time greater than 0';
+      return;
+    }
+    totalMs = ms;
+    remainingMs = ms;
+    pausedRemaining = ms;
+    startTime = performance.now();
+    running = true;
+    paused = false;
+    finished = false;
+    enableInputs(false);
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    statusEl.textContent = 'Running';
+    statusEl.classList.remove('finished');
+    rafId = requestAnimationFrame(tick);
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    if (!running) return;
+    if (!paused) {
+      paused = true;
+      running = false;
+      pausedRemaining = remainingMs;
+      cancelAnimationFrame(rafId);
+      pauseBtn.textContent = 'Resume';
+      statusEl.textContent = 'Paused';
+      startBtn.disabled = false;
+      startBtn.textContent = 'Resume';
+    }
+  });
+
+  function resetTimer() {
+    running = false;
+    paused = false;
+    finished = false;
+    cancelAnimationFrame(rafId);
+    totalMs = 0;
+    remainingMs = 0;
+    pausedRemaining = 0;
+    timerDisplay.textContent = '00:00:00';
+    updateHourglass(0);
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start';
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = 'Pause';
+    statusEl.textContent = 'Set your time below';
+    statusEl.classList.remove('finished');
+    enableInputs(true);
+  }
+
+  resetBtn.addEventListener('click', resetTimer);
+
+  // Clamp inputs
+  [hoursInput, minutesInput, secondsInput].forEach(inp => {
+    inp.addEventListener('change', () => {
+      let v = parseInt(inp.value) || 0;
+      const max = parseInt(inp.max);
+      if (v < 0) v = 0;
+      if (v > max) v = max;
+      inp.value = v;
+    });
+  });
+
+  // Initial state
+  updateHourglass(0);
+})();
+</script>
+</body>
+</html>
+
