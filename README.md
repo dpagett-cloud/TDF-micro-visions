@@ -14,6 +14,7 @@ A suite of combat and strategy simulations designed for varying levels of comple
 - **Snake**: The classic navigation challenge.
 - **Pong**: A high-speed, retro-style reaction game.
 - **Tetris**: A classic block drop game.
+- **Davaxian**: Arcade space shooter like it's 1979! 
 
 ### 🔬 Auxiliary Systems
 Supporting infrastructure and system utilities:
@@ -27,7 +28,7 @@ Supporting infrastructure and system utilities:
 3. Open `index.html` in a modern web browser to launch the command center.
 
 ## 📜 Versioning & Development
-- **Current Version**: 4.1 (Game Heavy Configuration)
+- **Current Version**: 4.2 (Game Heavy Configuration)
 - **Status**: Live
 - **Documentation**: Refer to the "Core System Explanation" for deep dives into project theory.
 
