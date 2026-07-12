@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song — Apology Remastered</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0b0a10;
+            --bg-panel: rgba(22, 20, 32, 0.78);
+            --fg: #ece9f5;
+            --fg-muted: #9b96b3;
+            --accent: #b388ff;
+            --accent-2: #ff77c6;
+            --border: rgba(179, 136, 255, 0.22);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-deep); color: var(--fg);
+            min-height: 100vh; overflow-x: hidden;
+        }
+        .font-display { font-family: 'Orbitron', sans-serif; }
+
+        .bg-image {
+            position: fixed; inset: 0; z-index: 0;
+            background: url('./mySongs/background.png') no-repeat center center/cover;
+            filter: brightness(0.3) saturate(1.1);
+        }
+        .bg-overlay {
+            position: fixed; inset: 0; z-index: 1;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(179,136,255,0.10) 0%, transparent 55%),
+                linear-gradient(180deg, rgba(11,10,16,0.55) 0%, rgba(11,10,16,0.93) 100%);
+        }
+
+        .content {
+            position: relative; z-index: 10; min-height: 100vh;
+            width: 100%; max-width: 1100px; margin: 0 auto;
+            padding: 30px clamp(1rem, 5vw, 3rem) 60px;
+        }
+
+        /* Top navigation */
+        .topnav {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            align-items: center; justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .nav-links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .nav-link {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            color: var(--fg-muted); text-decoration: none; font-size: 0.75rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 0.45rem 0.85rem; transition: all 0.25s ease;
+        }
+        .nav-link:hover { color: var(--accent); border-color: var(--accent); }
+        .nav-link svg { width: 14px; height: 14px; }
+
+        /* Song header */
+        .song-header { text-align: center; margin-bottom: 2rem; }
+        .song-header h1 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            text-shadow: 0 0 18px rgba(179,136,255,0.5);
+        }
+        .song-header .pos { color: var(--fg-muted); font-size: 0.75rem; letter-spacing: 0.15em; margin-top: 0.25rem; }
+
+        /* Artwork gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem; margin-bottom: 2rem;
+        }
+        .gallery-item {
+            aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+            border: 1px solid var(--border); cursor: pointer; position: relative;
+        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .gallery-item:hover img { transform: scale(1.05); }
+
+        /* Main feature artwork (large) */
+        .feature {
+            position: relative; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border); margin-bottom: 2rem;
+            max-height: 420px;
+        }
+        .feature img { width: 100%; height: 100%; max-height: 420px; object-fit: cover; display: block; }
+
+        /* Player card */
+        .player-card {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.25rem; backdrop-filter: blur(6px);
+            margin-bottom: 2rem;
+        }
+        .player-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .player-head h2 { font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+        audio { width: 100%; }
+        .player-hint { font-size: 0.7rem; color: var(--fg-muted); margin-top: 0.5rem; letter-spacing: 0.05em; }
+
+        /* Content blocks */
+        .blocks { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 860px) { .blocks { grid-template-columns: 1fr 1fr; } }
+        .block {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; backdrop-filter: blur(6px);
+        }
+        .block h3 {
+            font-family: 'Orbitron', sans-serif; font-size: 0.9rem;
+            letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-2);
+            margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+        }
+        .lyrics-body { white-space: pre-wrap; font-size: 0.85rem; line-height: 1.9; color: var(--fg); }
+        .desc-body { white-space: pre-wrap; font-size: 0.8rem; line-height: 1.8; color: var(--fg); }
+
+        /* Bottom prev/next */
+        .pagenav {
+            display: flex; justify-content: space-between; gap: 1rem;
+            margin-top: 2.5rem; flex-wrap: wrap;
+        }
+        .pagenav a {
+            flex: 1; min-width: 200px;
+            display: flex; flex-direction: column; gap: 0.25rem;
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1rem 1.25rem; text-decoration: none; color: var(--fg);
+            transition: all 0.25s ease;
+        }
+        .pagenav a:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .pagenav a.next { text-align: right; align-items: flex-end; }
+        .pagenav .label { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-muted); }
+        .pagenav .title { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; color: var(--accent); }
+
+        .footer { margin-top: 2.5rem; text-align: center; color: var(--fg-muted); font-size: 0.7rem; letter-spacing: 0.1em; }
+        .not-found { text-align: center; padding: 4rem; color: var(--fg-muted); }
+        .not-found a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="bg-image" aria-hidden="true"></div>
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <main class="content">
+        <!-- Top navigation -->
+        <nav class="topnav">
+            <div class="nav-links">
+                <a href="music.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Music Index
+                </a>
+                <a href="index.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    TDF Home
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="#" id="prev-top" class="nav-link">← Prev</a>
+                <a href="#" id="next-top" class="nav-link">Next →</a>
+            </div>
+        </nav>
+
+        <div id="content">
+            <div class="not-found">Loading…</div>
+        </div>
+
+        <footer class="footer">© 2026 David Pagett</footer>
+    </main>
+
+    <script src="./mySongs/songs-data.js"></script>
+    <script>
+        const songs = Array.isArray(window.SONGS) ? window.SONGS : [];
+        const wrap = document.getElementById('content');
+
+        // --- Resolve which song to show from ?id= (default to first) ---
+        const params = new URLSearchParams(location.search);
+        let id = params.get('id');
+        let idx = songs.findIndex(s => s.id === id);
+        if (idx === -1) idx = 0;   // unknown id -> fall back to first song
+        const song = songs[idx];
+        const prev = songs[(idx - 1 + songs.length) % songs.length];
+        const next = songs[(idx + 1) % songs.length];
+
+        document.title = `${song.title} — Apology Remastered`;
+
+        // --- Lightweight markdown-ish rendering for lyrics ---
+        function renderLyrics(md) {
+            const esc = (t) => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            return esc(md)
+                // section tags like [Verse 1] -> styled pill
+                .replace(/\[([^\]]+)\]/g, '<span class="ly-tag">[$1]</span>');
+        }
+
+        // --- Build the page ---
+        const featureImg = song.artwork[0] || './mySongs/albumCover.png';
+        const hasMp3 = !!song.mp3;
+
+        wrap.innerHTML = `
+            <div class="song-header">
+                <h1 class="font-display">${song.title}</h1>
+                <div class="pos">Track ${idx + 1} of ${songs.length}</div>
+            </div>
+
+            <div class="feature">
+                <img id="feature-img" src="${featureImg}" alt="Artwork for ${song.title}">
+            </div>
+
+            ${song.artwork.length > 1 ? `
+            <div class="gallery" id="gallery">
+                ${song.artwork.map((a,i) => `
+                    <div class="gallery-item"><img src="${a}" alt="${song.title} artwork ${i+1}" loading="lazy" data-full="${a}"></div>
+                `).join('')}
+            </div>` : ''}
+
+            ${hasMp3 ? `
+            <div class="player-card">
+                <div class="player-head"><h2>Play Track</h2></div>
+                <audio controls preload="metadata" src="${song.mp3}"></audio>
+                <div class="player-hint">Streams on demand — the file loads when you press play.</div>
+            </div>` : `<div class="player-card"><p class="player-hint">No audio file available for this track.</p></div>`}
+
+            <div class="blocks">
+                <section class="block">
+                    <h3>Lyrics</h3>
+                    <div class="lyrics-body">${renderLyrics(song.lyrics || 'No lyrics available.')}</div>
+                </section>
+                <section class="block">
+                    <h3>About this song</h3>
+                    <div class="desc-body">${song.description ? song.description.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : 'No description available.'}</div>
+                </section>
+            </div>
+
+            <nav class="pagenav">
+                <a class="prev" href="song.html?id=${prev.id}">
+                    <span class="label">← Previous</span>
+                    <span class="title">${prev.title}</span>
+                </a>
+                <a class="next" href="song.html?id=${next.id}">
+                    <span class="label">Next →</span>
+                    <span class="title">${next.title}</span>
+                </a>
+            </nav>
+        `;
+
+        // Tag styling injected inline (kept here so it travels with the lyric render)
+        const tagStyle = document.createElement('style');
+        tagStyle.textContent = '.ly-tag{color:var(--accent-2);font-weight:500;}';
+        document.head.appendChild(tagStyle);
+
+        // --- Wire gallery clicks to swap the feature image ---
+        const featureEl = document.getElementById('feature-img');
+        document.querySelectorAll('.gallery-item img').forEach(img => {
+            img.addEventListener('click', () => { featureEl.src = img.dataset.full; });
+        });
+
+        // --- Top prev/next ---
+        document.getElementById('prev-top').href = `song.html?id=${prev.id}`;
+        document.getElementById('next-top').href = `song.html?id=${next.id}`;
+    </script>
+</body>
+</html>
