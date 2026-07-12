@@ -25,9 +25,9 @@ Supporting infrastructure and system utilities:
 
 ### 🎵 Music From Another World
 The **Apology Remastered** collection — original songs and AI covers:
-- **Dave's Music**: Browse all 15 tracks on a dedicated music index page. Each song has its own page with artwork, lyrics, a description, and in-browser MP3 playback. Build a playlist by selecting individual tracks (or all of them) and play them back without leaving the index page.
+- **Dave's Music**: Browse all 16 tracks on a dedicated music index page. Each song has its own page with artwork, lyrics, a description, and in-browser MP3 playback. Build a playlist by selecting individual tracks (or all of them) and play them back without leaving the index page.
 
-The 15 tracks: Am I Mad · Cadence Rising · I Don't Wanna Sleep · In a Distant Land · It's Birthday Time · Love Light · March of the Orcs · No Barriers · Secret Agent · Shieldmaiden · The King of Rohan · The Mountain Cries · The Rise and Fall of the Hammer · The Way I Feel · Walking on a Winters Day
+The 16 tracks: Am I Mad · Brave New World · Cadence Rising · I Don't Wanna Sleep · In a Distant Land · It's Birthday Time · Love Light · March of the Orcs · No Barriers · Secret Agent · Shieldmaiden · The King of Rohan · The Mountain Cries · The Rise and Fall of the Hammer · The Way I Feel · Walking on a Winters Day
 
 ## 🛠️ Project Structure & Setup
 

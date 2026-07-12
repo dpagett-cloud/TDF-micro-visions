@@ -1,7 +1,7 @@
 /*
  * songs-data.js  — AUTO-GENERATED. Do not edit by hand.
  * Regenerate with:  node scripts/generate-songs-catalog.js
- * Songs: 15
+ * Songs: 16
  */
 window.SONGS = [
   {
@@ -15,6 +15,23 @@ window.SONGS = [
       "mySongs/artwork/Am I Mad/impressionist_00002_.png",
       "mySongs/artwork/Am I Mad/oil painting_00003_.png",
       "mySongs/artwork/Am I Mad/watercolor_00001_.png"
+    ]
+  },
+  {
+    "id": "brave-new-world",
+    "title": "Brave New World",
+    "description": "Brave New World is a song composed by my brother back in the early 80s. I have a cassette recording of us rehearsing the song in the garage at our parent’s house, my contribution was the guitar riff, it was a great collaboration. Suno made light work of interpreting the old recording and with a little creative prompting it basically created this version in one shot. I have tried other prompts but couldn’t better it.\r\n\r\nStyles\r\n\r\nMid-tempo alternative rock anthem featuring a blend of gritty electric guitars and atmospheric synthesizers, The track opens with a distorted, overdriven guitar riff that establishes a driving 4/4 rhythm at approximately 110 BPM, The arrangement builds with layers of shimmering synth pads and a punchy drum kit characterized by a heavy snare and crisp hi-hats, The male lead vocals are powerful and emotive, utilizing a slight rasp and sustained notes in the higher register during the chorus, The harmonic structure follows a classic rock progression in a minor key, emphasizing tension and release, Production is polished with significant reverb on the vocals and a wide stereo field for the guitars, creating a cinematic and expansive soundscape\r\n\r\nWeirdness 10%\r\nStyle Influence 58%\r\nAudio Influence 71%",
+    "lyrics": "[Verse 1]\r\nIn this brave new world which is rebuilding\r\nIn this brave new world of today\r\nIn this brave new world the fires are burning\r\n\r\n[Chorus]\r\nThere will never be another war in this new world today\r\n\r\n[Verse 2]\r\nIn this brave new world the wars forgotten\r\nIn this brave new world of today\r\nIn this brave new world the scars still show\r\n\r\n[Chorus]\r\nThere will never be another war in this new world today\r\n\r\n[Instrumental]\r\n\r\n[Verse 3]\r\n\r\nIn this brave new world which is rebuilding\r\nIn this brave new world of today\r\nIn this brave new world the fires are burning\r\n\r\n[Chorus]\r\nThere will never be another war in this new world today\r\n\r\n[Outro]\r\n[End]",
+    "mp3": "mySongs/mp3/Brave New World.mp3",
+    "artwork": [
+      "mySongs/artwork/Brave New World/Abstract Expressionism_00002_.png",
+      "mySongs/artwork/Brave New World/Amateur_00013_.png",
+      "mySongs/artwork/Brave New World/Classicism_00011_.png",
+      "mySongs/artwork/Brave New World/Op Art_00003_.png",
+      "mySongs/artwork/Brave New World/Silhouette_00004_.png",
+      "mySongs/artwork/Brave New World/artistic_00009_.png",
+      "mySongs/artwork/Brave New World/impressionist_00007_.png",
+      "mySongs/artwork/Brave New World/oil painting_00009_.png"
     ]
   },
   {
@@ -77,8 +94,8 @@ window.SONGS = [
     "mp3": "mySongs/mp3/Love Light.mp3",
     "artwork": [
       "mySongs/artwork/Love Light/Tolkien_00011_.png",
+      "mySongs/artwork/Love Light/frame_24_00001_.png",
       "mySongs/artwork/Love Light/frame_33_00001_.png",
-      "mySongs/artwork/Love Light/frame_38_00001_.png",
       "mySongs/artwork/Love Light/heavenly_00006_.png"
     ]
   },
@@ -193,10 +210,10 @@ window.SONGS = [
     "lyrics": "[Verse 1]\n\nI’ve been walking on a winters day\nDeep the snow around me lay\nDeep the sorrow in my mind\nDistant the Summer left behind\n\n[Chorus]\nWalking on a winters day\nThinking of you along the way\nWalking on a winters day\nAs the cold wind takes my breath away\n\n[Verse 2]\n\nSnow flakes fall upon my face\nThen disappear without a trace\nLike the long warm days lost and gone\nWhen all day long the sunlight shone \n\n[Bridge]\n\nA cold chill passes over me\nA memory of your smile\nWarms me and reminds me\nI’ll be home in a while\n\n[Chorus]\nWalking on a winters day\nThinking of you along the way\nWalking on a winters day\nAs the cold wind takes my breath away\n\n[Verse 3]\n\nLike cotton blankets upon the bed\nFootprints deep from where I tread \nForgotten journeys, brave and bold\nThe days are short, the nights are cold\n\n[Chorus]\nWalking on a winters day\nThinking of you along the way\nWalking on a winters day\nAs the cold wind takes my breath away",
     "mp3": "mySongs/mp3/Walking on a Winters Day.mp3",
     "artwork": [
-      "mySongs/artwork/Walking on a Winters Day/frame_15_00003__upscayl_4x_4x_NMKD-Superscale-SP_178000_G.png",
-      "mySongs/artwork/Walking on a Winters Day/frame_18_00003__upscayl_4x_4x_NMKD-Superscale-SP_178000_G.png",
-      "mySongs/artwork/Walking on a Winters Day/frame_34_00001__upscayl_4x_4x_NMKD-Superscale-SP_178000_G.png",
-      "mySongs/artwork/Walking on a Winters Day/frame_40_00002__upscayl_4x_4x_NMKD-Superscale-SP_178000_G.png"
+      "mySongs/artwork/Walking on a Winters Day/frame_15_00003_.png",
+      "mySongs/artwork/Walking on a Winters Day/frame_18_00003_.png",
+      "mySongs/artwork/Walking on a Winters Day/frame_34_00001_.png",
+      "mySongs/artwork/Walking on a Winters Day/frame_40_00002_.png"
     ]
   }
 ];
