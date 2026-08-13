@@ -1,7 +1,7 @@
 /*
  * songs-data.js  — AUTO-GENERATED. Do not edit by hand.
  * Regenerate with:  node scripts/generate-songs-catalog.js
- * Songs: 16
+ * Songs: 18
  */
 window.SONGS = [
   {
@@ -152,6 +152,23 @@ window.SONGS = [
     ]
   },
   {
+    "id": "the-collective",
+    "title": "The Collective",
+    "description": "The Collective was inspired by an instrumental I recorded many years ago. I built myself a red Fender Strat copy and it felt natural to play in a funk style, the guitar just lent itself to the fast chords and muted style. I added a brass sound and some drums and I called the track \"Jazz Fun\". Years later the lyrics popped into my head, I think I was thinking about Star Trek and the way The Borg assimilate others into their collective for their own betterment and I just applied that to what essentially is a love song!\r\n\r\nStyles:\r\n\r\nHigh-energy pop-punk and power pop track with a driving tempo of 160 BPM in the key of E Major, The arrangement features distorted electric rhythm guitars playing power chords with palm-muted verses and wide-open choruses, A bright, melodic lead guitar provides counter-melodies and octaves during the transitions, The drums are aggressive with a heavy emphasis on the snare and crash cymbals, utilizing fast eighth-note patterns on the hi-hat, The bass guitar is prominent, providing a thick, overdriven foundation that follows the root notes of the guitar, Vocals are delivered by a youthful male singer with a slight nasal quality and energetic, melodic phrasing, often layered with vocal harmonies during the chorus, The production is polished and radio-ready, with a clear separation between instruments and a punchy, compressed master, The structure follows a standard verse-chorus-verse-chorus-bridge-chorus format",
+    "lyrics": "[Chorus]\r\nWe can be a collective\r\nWe can be one single mind\r\nI have selected you\r\nTo connect with you\r\nTogether we will never be blind\r\n\r\n[Verse1]\r\nI'm a collector\r\nI collect, I collect\r\nWhat you have is what I want\r\nAll I need is all you have\r\nI'm hoping to collect you\r\n\r\n[Chorus]\r\nWe can be a collective\r\nWe can be one single mind\r\nI have selected you\r\nTo connect with you\r\nTogether we will never be blind\r\n\r\n[Verse2]\r\nI'm a collector\r\nI collect, I collect\r\nI need you to connect with me\r\nTogether to become one\r\nI'm longing to connect with you\r\n\r\n[Bridge]\r\nAll my life, all my time\r\nI've waited to complete myself\r\nYou and me, we're like a rhyme\r\nAll we need is a little time\r\n\r\n[Chorus]\r\nWe can be a collective\r\nWe can be one single mind\r\nI have selected you\r\nTo connect with you\r\nTogether we will never be blind\r\n\r\n[Verse3]\r\nI'm a collector\r\nI collect, I collect\r\nI have selected you to be with me\r\nThe selection process was so easy\r\nI hope you select me too\r\n\r\n[Chorus]\r\nWe can be a collective\r\nWe can be one single mind\r\nI have selected you\r\nTo connect with you\r\nTogether we will never be blind\r\nI'm a collector\r\n\r\n[Outro]",
+    "mp3": "mySongs/mp3/The Collective.mp3",
+    "artwork": [
+      "mySongs/artwork/The Collective/Avant-Garde_00003_.png",
+      "mySongs/artwork/The Collective/cyberpunk_00006_.png",
+      "mySongs/artwork/The Collective/none_00024_.png",
+      "mySongs/artwork/The Collective/none_00026_.png",
+      "mySongs/artwork/The Collective/photorealistic_00002_.png",
+      "mySongs/artwork/The Collective/romanticist_00001_.png",
+      "mySongs/artwork/The Collective/steampunk_00002_.png",
+      "mySongs/artwork/The Collective/vintage_00001_.png"
+    ]
+  },
+  {
     "id": "the-king-of-rohan",
     "title": "The King of Rohan",
     "description": "The King of Rohan is another cover with changed lyrics of a song from the 1983 Paul McCartney album Give my Regards to Broad Street. Suno would not allow my to cover my own version so I produced an instrumental version then wrote more Tolkien inspired lyrics about King Théoden of Rohan. The original song was ‘Not Such a Bad Boy’\r\n\r\nStyles:\r\n\r\nblues rock, 145 BPM, E major, overdriven power chords, harmonized lead guitars, blues guitar fills, overdriven bass guitar, kick drum lock, open hi-hat offbeats, snare backbeat, stop-start dynamics, projected male vocal, midrange, melodic aggression, dense chorus lift, sparse verse breaks, build and release, cinematic build-ups\r\n\r\nWeirdness 9%\r\nStyle Influence 54%\r\nAudio Influence 89%",
@@ -201,6 +218,23 @@ window.SONGS = [
       "mySongs/artwork/The Way I Feel/renaissance_00003_.png",
       "mySongs/artwork/The Way I Feel/studio photography_00004_.png",
       "mySongs/artwork/The Way I Feel/vintage_00007_.png"
+    ]
+  },
+  {
+    "id": "time-for-tea",
+    "title": "Time for Tea",
+    "description": "I have been based in the Jewellery Quarter in Birmingham, England and I work with folks who teach watch and clock repair, Horology. This is me romanticising some of what they do! I used a melody I wrote decades ago for the base of the song (Lara's Theme) which is prominent at the start of the song. \r\n\r\nStyles : \r\n\r\nlight and bright featuring a metronymic percussion that evokes the ticking of a clock",
+    "lyrics": "(Verse 1)\r\n    In a shop on the corner of Cobblestone Lane\r\n    Where the sunlight it dances, through leaded windowpane\r\n    Sits a man with a loupe and a mind that's quite sane\r\n    Watching the movements, as time drifts away!\r\n\r\n(Verse 2)\r\n    He’s got springs in his pocket and brass in his hair\r\n    And he’s fixing the time for the folks everywhere\r\n    With a thousand faces, all looking at him\r\n    He slows down his hear beat and calm rushes in!\r\n\r\n(Chorus)\r\n    Oh, it’s time for tea! And a moment to be free!\r\n    Just you and me and the ticking of the clock!\r\n    Tick-tock, tick-tock, let the gears all spin\r\n    When you lose your way,  just come on in!\r\n\r\n(Verse 3)\r\n    He’s got silver-toothed clocks hanging up by the door\r\n    And a grandfather standing by the stairs, so tall\r\n    But he doesn't care much for the \"less\" or the \"more\"\r\n    He’s content with the rhythm of his foot steps on the floor!\r\n\r\n(Verse 4)\r\n    With a wink of his eye and a tilt of his head\r\n    He’ll fix up your life while you’re dreaming in bed\r\n    Into the night to the hum of a slow turning lathe \r\n    In the dimly lit workshop another treasure he'll save!\r\n\r\n(Chorus)\r\n    Oh, it’s time for tea! And a moment to be free!\r\n    Just you and me and the ticking of the clock!\r\n    Tick-tock, tick-tock, let the gears all spin\r\n    When you lose your way,  just come on in!\r\n\r\n(Bridge)\r\n    (Tempo slows slightly; dreamy, psychedelic string arrangement enters)\r\n    But don't let the pendulum swing you astray\r\n    Life isn't measured by the time of the day\r\n    For the minute is fleeting, and the hour is vast...\r\n    In the shop on the corner he's saving the past!\r\n    (Drum fill—sudden return to upbeat tempo!)\r\n\r\n    (Guitar Solo: A melodic, bright solo that follows the vocal melody)\r\n\r\n(Chorus)\r\n    Oh, it’s time for tea! And a moment to be free!\r\n    Just you and me and the ticking of the clock!\r\n    Tick-tock, tick-tock, let the gears all spin\r\n    When you lose your way,  just come on in!\r\n\r\n(Outro)\r\n    (Piano slows down into a jaunty, music-hall stomp)\r\n    Tick-tock... (tick-tock)\r\n    Time for tea... (time for tea...)\r\n    (Final flourish of piano and a single chime of a bell)",
+    "mp3": "mySongs/mp3/Time for Tea.mp3",
+    "artwork": [
+      "mySongs/artwork/Time for Tea/Amateur_00006_.png",
+      "mySongs/artwork/Time for Tea/art deco_00001_.png",
+      "mySongs/artwork/Time for Tea/cinematic_00035_.png",
+      "mySongs/artwork/Time for Tea/heavenly_00002_.png",
+      "mySongs/artwork/Time for Tea/hyperrealist_00004_.png",
+      "mySongs/artwork/Time for Tea/hyperrealist_00006_.png",
+      "mySongs/artwork/Time for Tea/retro_00005_.png",
+      "mySongs/artwork/Time for Tea/studio photography_00004_.png"
     ]
   },
   {

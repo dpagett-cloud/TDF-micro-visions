@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ohm's Law — Understand & Calculate</title>
+  <meta name="description" content="Learn Ohm's Law and calculate voltage, current, or resistance instantly with a sleek interactive calculator." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Ambient background glows -->
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb--indigo"></span>
+    <span class="orb orb--cyan"></span>
+    <span class="orb orb--magenta"></span>
+  </div>
+
+  <header class="nav">
+    <div class="nav__brand">
+      <span class="nav__logo">⚡</span>
+      <span>Ohm's Law</span>
+    </div>
+    <nav class="nav__links">
+      <a href="#about">About</a>
+      <a href="#calculator">Calculator</a>
+      <a href="#reference">Reference</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <p class="hero__eyebrow reveal">The foundation of electronics</p>
+      <h1 class="hero__title reveal">Ohm's Law</h1>
+      <p class="hero__subtitle reveal">
+        The relationship between voltage, current, and resistance —
+        explained simply, calculated instantly.
+      </p>
+
+      <div class="hero__formula reveal">
+        <span class="var var--v">V</span>
+        <span class="eq">=</span>
+        <span class="var var--i">I</span>
+        <span class="op">×</span>
+        <span class="var var--r">R</span>
+      </div>
+
+      <div class="hero__legend reveal">
+        <span><b>V</b> Voltage (Volts)</span>
+        <span><b>I</b> Current (Amps)</span>
+        <span><b>R</b> Resistance (Ohms)</span>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <header class="section__head reveal">
+        <h2>What is Ohm's Law?</h2>
+        <p>
+          Ohm's Law states that the current through a conductor between two points
+          is directly proportional to the voltage across the two points and
+          inversely proportional to the resistance between them.
+        </p>
+      </header>
+
+      <div class="cards">
+        <article class="card reveal">
+          <div class="card__tag">Voltage</div>
+          <div class="card__formula">V = I × R</div>
+          <p>Find voltage by multiplying current and resistance.</p>
+        </article>
+        <article class="card reveal">
+          <div class="card__tag">Current</div>
+          <div class="card__formula">I = V ÷ R</div>
+          <p>Find current by dividing voltage by resistance.</p>
+        </article>
+        <article class="card reveal">
+          <div class="card__tag">Resistance</div>
+          <div class="card__formula">R = V ÷ I</div>
+          <p>Find resistance by dividing voltage by current.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CALCULATOR -->
+    <section id="calculator" class="section">
+      <header class="section__head reveal">
+        <h2>Interactive Calculator</h2>
+        <p>Enter any two values — the third is calculated automatically.</p>
+      </header>
+
+      <div class="calc reveal">
+        <div class="calc__fields">
+          <label class="field">
+            <span class="field__name">Voltage</span>
+            <div class="field__input">
+              <input type="number" id="voltage" inputmode="decimal" placeholder="0" autocomplete="off" />
+              <span class="field__unit">V</span>
+            </div>
+          </label>
+
+          <label class="field">
+            <span class="field__name">Current</span>
+            <div class="field__input">
+              <input type="number" id="current" inputmode="decimal" placeholder="0" autocomplete="off" />
+              <span class="field__unit">A</span>
+            </div>
+          </label>
+
+          <label class="field">
+            <span class="field__name">Resistance</span>
+            <div class="field__input">
+              <input type="number" id="resistance" inputmode="decimal" placeholder="0" autocomplete="off" />
+              <span class="field__unit">Ω</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="calc__actions">
+          <button type="button" id="solve" class="btn btn--primary">Calculate</button>
+          <button type="button" id="reset" class="btn btn--ghost">Reset</button>
+        </div>
+
+        <div id="message" class="calc__message" role="status" aria-live="polite"></div>
+
+        <div id="result" class="result" aria-live="polite">
+          <span class="result__label">Result</span>
+          <div class="result__value">
+            <span id="resultSymbol">—</span>
+            <span class="result__equals">=</span>
+            <span id="resultNumber" class="result__number">—</span>
+            <span id="resultUnit" class="result__unit"></span>
+          </div>
+          <div id="resultFormula" class="result__formula"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENCE -->
+    <section id="reference" class="section">
+      <header class="section__head reveal">
+        <h2>Quick Reference</h2>
+        <p>Common SI prefixes used with voltage, current, and resistance.</p>
+      </header>
+
+      <div class="table-wrap reveal">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Prefix</th>
+              <th>Symbol</th>
+              <th>Multiplier</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Mega</td><td>M</td><td>× 1,000,000</td><td>1 MΩ = 1,000,000 Ω</td></tr>
+            <tr><td>Kilo</td><td>k</td><td>× 1,000</td><td>1 kΩ = 1,000 Ω</td></tr>
+            <tr><td>(base)</td><td>—</td><td>× 1</td><td>1 A, 1 V, 1 Ω</td></tr>
+            <tr><td>Milli</td><td>m</td><td>× 0.001</td><td>1 mA = 0.001 A</td></tr>
+            <tr><td>Micro</td><td>µ</td><td>× 0.000001</td><td>1 µA = 0.000001 A</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Built to demystify electronics · V = I × R</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
