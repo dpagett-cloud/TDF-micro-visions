@@ -16,7 +16,8 @@ A suite of combat and strategy simulations designed for varying levels of comple
 - **Snake**: The classic navigation challenge.
 - **Pong**: A high-speed, retro-style reaction game.
 - **Tetris**: A classic block drop game.
-- **Davaxian**: Arcade space shooter like it's 1979! 
+- **Davaxian**: Arcade space shooter like it's 1979!
+- **Stop The Clock**: Measure your nerve to three decimal places.
 
 ### 🔬 Auxiliary Systems
 Supporting infrastructure and system utilities:
