@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DaveCraft — Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky1:#78a7ff; --sky2:#b7d4ff;
+  --panel:#3b3b3b; --panel2:#2a2a2a; --panel3:#4a4a4a;
+  --slot:#8b8b8b; --slot-hi:#a5a5a5;
+  --gold:#ffd867; --green:#7ada7f; --red:#e02020;
+  --txt:#e8e8e8; --txt-dim:#a9b0b8;
+  --accent:#5b8dd6;
+}
+body.night{
+  --sky1:#0a1030; --sky2:#1c2b55;
+  --panel:#26262b; --panel2:#1a1a1f; --panel3:#33333a;
+  --txt:#d8dee8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:'VT323',monospace; font-size:22px; color:var(--txt);
+  background:linear-gradient(var(--sky1),var(--sky2)); background-attachment:fixed;
+  transition:background 1.2s;
+}
+/* ---------- pixel font + headings ---------- */
+h1,h2,h3,.mcfont{font-family:'Press Start 2P',monospace}
+h2{
+  font-size:15px; color:#fff; text-shadow:2px 2px 0 #3f3f3f;
+  padding:10px 14px; margin:0 0 14px;
+  background:linear-gradient(#6d6d6d,#565656);
+  border:3px solid; border-color:#8f8f8f #2f2f2f #2f2f2f #8f8f8f;
+  display:flex; align-items:center; gap:12px; cursor:default;
+}
+h2 .num{color:var(--gold); font-size:13px}
+h3{font-size:11px; color:var(--gold); margin:22px 0 8px; text-shadow:1px 1px 0 #000}
+p{margin:8px 0; line-height:1.45}
+strong{color:#fff}
+em{color:var(--txt-dim)}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'VT323',monospace; background:#00000055; padding:0 6px; border:1px solid #ffffff22; color:var(--gold)}
+
+/* ---------- header ---------- */
+#sky-header{
+  position:relative; overflow:hidden; padding:70px 20px 90px; text-align:center;
+  background:linear-gradient(var(--sky1),var(--sky2)); transition:background 1.2s;
+  border-bottom:6px solid #2b2b2b;
+}
+#sun,#moon{
+  position:absolute; top:30px; width:56px; height:56px; image-rendering:pixelated;
+  background-size:contain; transition:opacity 1.5s;
+}
+#sun{right:12%; animation:sunfloat 14s ease-in-out infinite}
+#moon{left:12%; opacity:0; animation:sunfloat 18s ease-in-out infinite}
+body.night #sun{opacity:0}
+body.night #moon{opacity:1}
+@keyframes sunfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.cloud{position:absolute; width:140px; height:44px; opacity:.85; image-rendering:pixelated;
+  background-size:contain; background-repeat:no-repeat; animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(-160px)}to{transform:translateX(110vw)}}
+#logo{
+  font-size:clamp(22px,5vw,44px); color:#fff; margin:0;
+  text-shadow:4px 4px 0 #3f3f3f, 8px 8px 0 rgba(0,0,0,.25); letter-spacing:2px;
+}
+#logo .b{color:#7ec8ff}
+#tagline{font-size:20px; color:#fff; text-shadow:2px 2px 0 #00000088; margin:14px 0 22px}
+#header-blocks{display:flex; justify-content:center; gap:10px; margin-top:18px; flex-wrap:wrap}
+#header-blocks .blk{width:44px; height:44px; image-rendering:pixelated; background-size:cover;
+  animation:bob 3s ease-in-out infinite; box-shadow:4px 4px 0 rgba(0,0,0,.3)}
+#header-blocks .blk:nth-child(2n){animation-delay:.5s}
+#header-blocks .blk:nth-child(3n){animation-delay:1s}
+#header-blocks .blk:nth-child(5n){animation-delay:1.5s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.stars{position:absolute; inset:0; opacity:0; transition:opacity 1.5s; pointer-events:none}
+body.night .stars{opacity:1}
+.star{position:absolute; width:3px; height:3px; background:#fff; animation:twinkle 3s infinite}
+@keyframes twinkle{50%{opacity:.2}}
+
+/* ---------- buttons ---------- */
+.mcbtn{
+  font-family:'Press Start 2P',monospace; font-size:11px; color:#fff; cursor:pointer;
+  background:linear-gradient(#7d7d7d,#5e5e5e); padding:12px 18px;
+  border:3px solid; border-color:#b5b5b5 #262626 #262626 #b5b5b5;
+  text-shadow:2px 2px 0 #3f3f3f; user-select:none;
+}
+.mcbtn:hover{background:linear-gradient(#8f9bd0,#5f6ca8); border-color:#cdd6ff #2a3050 #2a3050 #cdd6ff}
+.mcbtn:active{transform:translateY(2px)}
+.mcbtn.on{background:linear-gradient(#5fae62,#3d7a40); border-color:#a8e0aa #1f4a21 #1f4a21 #a8e0aa}
+
+/* ---------- layout ---------- */
+#wrap{display:flex; max-width:1280px; margin:0 auto; gap:24px; padding:24px}
+#sidebar{
+  position:sticky; top:16px; align-self:flex-start; width:230px; flex-shrink:0;
+  max-height:calc(100vh - 32px); overflow-y:auto;
+}
+#nav{
+  background:var(--panel2); border:3px solid; border-color:#5a5a5a #111 #111 #5a5a5a; padding:10px;
+}
+#nav .title{font-family:'Press Start 2P',monospace; font-size:10px; color:var(--gold); padding:4px 6px 10px; text-shadow:1px 1px 0 #000}
+#nav a{
+  display:flex; gap:8px; align-items:center; padding:6px 8px; margin:2px 0; color:var(--txt);
+  font-size:19px; border:2px solid transparent;
+}
+#nav a:hover{background:#ffffff14; text-decoration:none; border-color:#ffffff22}
+#nav a.active{background:#5b8dd633; border-color:var(--accent); color:#fff}
+#nav a .ic{width:18px; height:18px; image-rendering:pixelated; background-size:contain; flex-shrink:0}
+main{flex:1; min-width:0; display:flex; flex-direction:column; gap:26px}
+section.panel{
+  background:var(--panel); border:4px solid; border-color:#5f5f5f #161616 #161616 #5f5f5f;
+  padding:20px 22px; box-shadow:0 6px 0 rgba(0,0,0,.28);
+}
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+@media(max-width:900px){ #wrap{flex-direction:column} #sidebar{position:static; width:100%; max-height:none} .cols{grid-template-columns:1fr} }
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse; width:100%; margin:10px 0; font-size:19px}
+th{
+  font-family:'Press Start 2P',monospace; font-size:9px; color:#fff; text-shadow:1px 1px 0 #000;
+  background:var(--panel3); padding:9px 10px; text-align:left; border:2px solid #1d1d1d;
+}
+td{padding:7px 10px; border:2px solid #1d1d1d; background:var(--panel2); vertical-align:middle}
+tr:hover td{background:#ffffff10}
+td .ic{width:20px; height:20px; image-rendering:pixelated; background-size:contain; display:inline-block; vertical-align:-4px; margin-right:8px}
+
+/* ---------- item slots + tooltips ---------- */
+.slot{
+  width:44px; height:44px; background:var(--slot); position:relative; flex-shrink:0;
+  border:3px solid; border-color:#373737 #fff #fff #373737; cursor:pointer;
+}
+.slot:hover{background:var(--slot-hi)}
+.slot .ic{position:absolute; inset:4px; image-rendering:pixelated; background-size:contain; background-repeat:no-repeat; background-position:center}
+.slot .ct{position:absolute; right:2px; bottom:0; font-size:17px; color:#fff; text-shadow:2px 2px 0 #000; font-family:'VT323',monospace}
+.slot.selected{outline:3px solid #fff; outline-offset:-1px}
+#tooltip{
+  position:fixed; z-index:99; pointer-events:none; display:none; max-width:260px;
+  background:#100010ee; border:2px solid #25015a; outline:2px solid #6d28c8;
+  padding:8px 12px; font-size:19px; color:#fff;
+}
+#tooltip .sub{color:#8f8f9f; font-size:17px}
+
+/* ---------- crafting simulator ---------- */
+#craft-lab{background:var(--panel2); border:3px solid; border-color:#5a5a5a #111 #111 #5a5a5a; padding:16px; margin-top:14px}
+#craft-lab .row{display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start}
+.grid{display:grid; gap:4px}
+#palette{display:flex; flex-wrap:wrap; gap:4px; max-width:320px}
+.arrow{font-size:40px; color:#555; font-family:monospace}
+#craft-msg{min-height:26px; color:var(--green); font-size:19px}
+#crafted-list{display:flex; flex-wrap:wrap; gap:4px; min-height:48px}
+.craftbar{display:flex; gap:10px; margin:0 0 12px; align-items:center; flex-wrap:wrap}
+
+/* ---------- recipe cards ---------- */
+.recipes{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; margin-top:10px}
+.recipe{
+  background:var(--panel2); border:3px solid; border-color:#5a5a5a #111 #111 #5a5a5a; padding:12px;
+  display:flex; gap:14px; align-items:center;
+}
+.recipe .mini{display:grid; gap:3px}
+.recipe .mini.m2{grid-template-columns:repeat(2,32px)}
+.recipe .mini.m3{grid-template-columns:repeat(3,32px)}
+.recipe .mini .mslot{width:32px; height:32px; background:var(--slot); border:2px solid; border-color:#373737 #fff #fff #373737; position:relative}
+.recipe .mini .mslot .ic{position:absolute; inset:3px; image-rendering:pixelated; background-size:contain}
+.recipe .rarrow{font-size:26px; color:#666}
+.recipe .out{display:flex; align-items:center; gap:8px}
+.recipe .out .slot{cursor:default}
+.recipe .rname{font-size:18px; color:#fff; text-shadow:1px 1px 0 #000; max-width:110px}
+
+/* ---------- misc themed bits ---------- */
+.hearts{display:inline-flex; gap:2px; vertical-align:middle}
+.hearts span{width:20px; height:20px; image-rendering:pixelated; background-size:contain}
+.kbd{
+  font-family:'Press Start 2P',monospace; font-size:10px; background:#2f2f2f; color:#fff;
+  border:2px solid; border-color:#6a6a6a #141414 #141414 #6a6a6a; padding:5px 8px; margin:0 2px;
+  display:inline-block; transform:translateY(-2px);
+}
+.callout{
+  background:#2c3a1e; border:3px solid; border-color:#77a558 #1c2a10 #1c2a10 #77a558;
+  padding:10px 14px; margin:12px 0; color:#d8efc0;
+}
+.callout.warn{background:#3a2a1e; border-color:#a58358 #2a1c10 #2a1c10 #a58358; color:#efdcc0}
+.callout b{color:#fff}
+.creeper{display:inline-block; width:22px; height:22px; image-rendering:pixelated; background-size:contain; vertical-align:-5px}
+#top-btn{position:fixed; right:18px; bottom:18px; z-index:50; display:none}
+#top-btn.show{display:block}
+footer{
+  text-align:center; padding:34px 16px 46px; color:#fff; text-shadow:2px 2px 0 #0008;
+  border-top:6px solid #2b2b2b; margin-top:10px;
+}
+::-webkit-scrollbar{width:14px}
+::-webkit-scrollbar-track{background:#1d1d1d}
+::-webkit-scrollbar-thumb{background:#5f5f5f; border:3px solid #1d1d1d}
+</style>
+</head>
+<body>
+
+<div id="sky-header">
+  <div id="sun"></div><div id="moon"></div>
+  <div class="stars" id="stars"></div>
+  <h1 id="logo">DAVE<span class="b">CRAFT</span></h1>
+  <div id="tagline">— an infinite voxel sandbox · the complete manual —</div>
+  <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap">
+    <button class="mcbtn" id="theme-btn">☾ Night Mode</button>
+    <button class="mcbtn on" id="sound-btn">♪ Sounds: On</button>
+  </div>
+  <div id="header-blocks"></div>
+</div>
+
+<div id="wrap">
+  <div id="sidebar">
+    <nav id="nav">
+      <div class="title">☰ MANUAL</div>
+      <a href="#s1"><span class="ic" data-ic="grass_top"></span>Getting Started</a>
+      <a href="#s2"><span class="ic" data-ic="i_stick"></span>Controls</a>
+      <a href="#s3"><span class="ic" data-ic="snow"></span>The World</a>
+      <a href="#s4"><span class="ic" data-ic="stone"></span>Blocks</a>
+      <a href="#s5"><span class="ic" data-ic="i_ip"></span>Items &amp; Tools</a>
+      <a href="#s6"><span class="ic" data-ic="table_top"></span>Crafting</a>
+      <a href="#s7"><span class="ic" data-ic="i_feather"></span>Inventory</a>
+      <a href="#s8"><span class="ic" data-ic="heart"></span>Health</a>
+      <a href="#s9"><span class="ic" data-ic="creeper_face"></span>Mobs</a>
+      <a href="#s10"><span class="ic" data-ic="torch"></span>Lighting</a>
+      <a href="#s11"><span class="ic" data-ic="sun_icon"></span>Day / Night</a>
+      <a href="#s12"><span class="ic" data-ic="i_wsh"></span>Options &amp; Saving</a>
+      <a href="#s13"><span class="ic" data-ic="i_meat"></span>HUD</a>
+      <a href="#s14"><span class="ic" data-ic="coal_ore"></span>Polish</a>
+      <a href="#s15"><span class="ic" data-ic="bedrock"></span>Troubleshooting</a>
+      <a href="#s16"><span class="ic" data-ic="water"></span>Technical</a>
+    </nav>
+  </div>
+  <main>
+    <section class="panel" id="s1">
+      <h2><span class="num">01</span>GETTING STARTED</h2>
+      <div class="cols">
+        <div>
+          <p><strong>DaveCraft</strong> is an infinite, Minecraft-style 3D voxel sandbox that runs entirely in one HTML file in a modern browser (Chrome or Firefox). The world is procedurally generated from a seed, streams in around you as you walk, and never ends in any direction.</p>
+          <ul>
+            <li><strong>File:</strong> <code>davecraft.html</code> — everything lives in this one file</li>
+            <li><strong>Needs:</strong> Chrome or Firefox + internet on first load (Three.js comes from a CDN)</li>
+            <li><strong>No install, no build tools, no accounts</strong></li>
+          </ul>
+          <div class="callout"><b>Tip:</b> clicking anywhere on the title screen locks the mouse and starts the game. Press <span class="kbd">Esc</span> any time to release the mouse.</div>
+        </div>
+        <div>
+          <h3>☐ FIRST-DAY SURVIVAL GUIDE</h3>
+          <ol style="line-height:1.6">
+            <li><strong>Punch a tree</strong> — hold left-click on a trunk until it breaks. Collect the Wood Log.</li>
+            <li>Press <span class="kbd">E</span>, put the log in the 2×2 grid → craft <strong>Planks</strong>.</li>
+            <li>Craft <strong>Sticks</strong> (2 planks stacked), then a <strong>Crafting Table</strong> (4 planks in a square).</li>
+            <li>Place the table, right-click it, craft a <strong>Wooden Pickaxe</strong>.</li>
+            <li>Mine stone for a <strong>Stone Pickaxe</strong>, then hunt <strong>coal</strong> and <strong>iron</strong>.</li>
+            <li>Before dark: craft <strong>torches</strong> and a <strong>sword</strong>. <span class="creeper" style="background-image:url()" data-ic="creeper_face"></span> Night brings zombies and creepers.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="s2">
+      <h2><span class="num">02</span>CONTROLS</h2>
+      <table>
+        <tr><th style="width:220px">Input</th><th>Action</th></tr>
+        <tr><td><span class="kbd">Click</span></td><td>Lock the mouse / dismiss the title overlay</td></tr>
+        <tr><td><span class="kbd">Mouse</span></td><td>Look around</td></tr>
+        <tr><td><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span></td><td>Move (relative to where you're facing)</td></tr>
+        <tr><td><span class="kbd">Space</span></td><td>Jump — also swims upward in water</td></tr>
+        <tr><td><span class="kbd">Shift</span> / <span class="kbd">Ctrl</span></td><td>Sprint (1.5× walking speed)</td></tr>
+        <tr><td><span class="kbd">LMB</span> <em>(hold)</em></td><td>Mine the targeted block / attack a mob</td></tr>
+        <tr><td><span class="kbd">RMB</span></td><td>Place the selected block / open a crafting table</td></tr>
+        <tr><td><span class="kbd">1</span>–<span class="kbd">9</span></td><td>Select a hotbar slot directly</td></tr>
+        <tr><td><span class="kbd">Wheel</span></td><td>Cycle hotbar slots</td></tr>
+        <tr><td><span class="kbd">E</span></td><td>Open / close inventory (with the 2×2 crafting grid)</td></tr>
+        <tr><td><span class="kbd">P</span></td><td>Pause menu — options, difficulty, save / load</td></tr>
+        <tr><td><span class="kbd">Esc</span></td><td>Release the mouse / close an open screen</td></tr>
+      </table>
+    </section>
+
+    <section class="panel" id="s3">
+      <h2><span class="num">03</span>THE WORLD</h2>
+      <div class="cols">
+        <div>
+          <h3>INFINITE TERRAIN</h3>
+          <p>The world is divided into <strong>chunks of 16 × 16 blocks</strong>, 96 blocks tall, generated on demand from the seed. <strong>Sea level is y=48</strong>; snow appears above roughly y=78.</p>
+          <p>Terrain streams in up to <strong>8 chunks (128 blocks)</strong> around you and unloads behind you; fog hides the edge. Walk 1,000+ blocks in any direction and new terrain keeps generating — there are no boundaries, walls, or barriers.</p>
+          <p>The same seed always produces the same world: leave and return, and the terrain regenerates identically — plus your edits, which are remembered.</p>
+          <h3>CAVES &amp; ORES</h3>
+          <ul>
+            <li>Winding <strong>spaghetti tunnels</strong> + larger <strong>caverns</strong>, denser the deeper you go; some open at the surface as natural entrances.</li>
+            <li>Caves are <strong>never flooded</strong> — only open sky (oceans, lakes, rivers) fills with water.</li>
+            <li><strong>Coal</strong> — common, veins of 3–8, most depths. <strong>Iron</strong> — rarer, veins of 2–6, richer the deeper you dig. Both often exposed on cave walls.</li>
+            <li><strong>Bedrock</strong> — indestructible — forms a ragged 1–3 block floor at the bottom of the world.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>BIOMES</h3>
+          <table>
+            <tr><th>Biome</th><th>What you'll find</th></tr>
+            <tr><td><span class="ic" data-ic="grass_top"></span>Plains</td><td>Gentle grassland, scattered oaks, animals</td></tr>
+            <tr><td><span class="ic" data-ic="leaves"></span>Forest</td><td>Dense oaks — great for wood</td></tr>
+            <tr><td><span class="ic" data-ic="leaves"></span>Rainforest</td><td>Tall jungle trees with huge canopies</td></tr>
+            <tr><td><span class="ic" data-ic="sand"></span>Desert</td><td>Sand, no trees</td></tr>
+            <tr><td><span class="ic" data-ic="sand"></span>Beach</td><td>Sand around sea level</td></tr>
+            <tr><td><span class="ic" data-ic="water"></span>Ocean</td><td>Water to a sand floor — walk the seabed</td></tr>
+            <tr><td><span class="ic" data-ic="stone"></span>Rocky Highlands</td><td>Stone terrain, steep ground</td></tr>
+            <tr><td><span class="ic" data-ic="snow"></span>Snowy Mountains</td><td>High snow-capped peaks</td></tr>
+          </table>
+          <p>Biomes blend smoothly; <strong>rivers</strong> wind across the world as sand-lined channels connecting lakes and oceans.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="s4">
+      <h2><span class="num">04</span>BLOCKS</h2>
+      <table>
+        <tr><th>Block</th><th>Hardness</th><th>Best tool</th><th>Drops</th></tr>
+        <tr><td><span class="ic" data-ic="grass_side"></span>Grass</td><td>0.7</td><td>Shovel</td><td>Dirt</td></tr>
+        <tr><td><span class="ic" data-ic="dirt"></span>Dirt</td><td>0.6</td><td>Shovel</td><td>Dirt</td></tr>
+        <tr><td><span class="ic" data-ic="stone"></span>Stone</td><td>2.2</td><td>Pickaxe</td><td>Cobblestone</td></tr>
+        <tr><td><span class="ic" data-ic="cobble"></span>Cobblestone</td><td>2.4</td><td>Pickaxe</td><td>Cobblestone</td></tr>
+        <tr><td><span class="ic" data-ic="coal_ore"></span>Coal Ore</td><td>3.0</td><td>Pickaxe</td><td>1–2 Coal</td></tr>
+        <tr><td><span class="ic" data-ic="iron_ore"></span>Iron Ore</td><td>3.2</td><td><strong>Stone pick+</strong></td><td>1 Iron</td></tr>
+        <tr><td><span class="ic" data-ic="sand"></span>Sand</td><td>0.6</td><td>Shovel</td><td>Sand</td></tr>
+        <tr><td><span class="ic" data-ic="log_side"></span>Wood Log</td><td>1.6</td><td>Axe</td><td>Wood Log</td></tr>
+        <tr><td><span class="ic" data-ic="planks"></span>Planks</td><td>1.4</td><td>Axe</td><td>Planks</td></tr>
+        <tr><td><span class="ic" data-ic="leaves"></span>Leaves</td><td>0.3</td><td>any</td><td>— (8% Stick)</td></tr>
+        <tr><td><span class="ic" data-ic="snow"></span>Snow</td><td>0.5</td><td>Shovel</td><td>Snow</td></tr>
+        <tr><td><span class="ic" data-ic="table_top"></span>Crafting Table</td><td>1.4</td><td>Axe</td><td>Crafting Table</td></tr>
+        <tr><td><span class="ic" data-ic="torch"></span>Torch</td><td>~instant</td><td>any</td><td>Torch</td></tr>
+        <tr><td><span class="ic" data-ic="water"></span>Water</td><td>—</td><td>—</td><td>not minable, no collision</td></tr>
+        <tr><td><span class="ic" data-ic="bedrock"></span>Bedrock</td><td>∞</td><td>—</td><td><strong>indestructible</strong></td></tr>
+      </table>
+      <div class="callout"><b>Mining speed:</b> time ≈ hardness ÷ multiplier × 0.45 s. A matching tool gives <b>wood 2× / stone 4× / iron 6×</b>. Pickaxe-blocks mined bare-handed take 3.5× longer (iron ore even more — it effectively requires a stone pickaxe).</div>
+      <p>Other notes: mining shows a <strong>cracking animation</strong>; broken blocks drop as <strong>spinning item cubes</strong> that fly to you; you can't place a block inside yourself; torches only go on <strong>top faces</strong> of solid blocks.</p>
+    </section>
+
+    <section class="panel" id="s5">
+      <h2><span class="num">05</span>ITEMS &amp; TOOLS</h2>
+      <p>Non-placeable materials: <strong>Coal, Iron, Stick, Raw Meat, Feather</strong> (drops from chickens).</p>
+      <table>
+        <tr><th>Tool</th><th>Crafted from</th><th>Damage</th><th>Durability</th><th>Notes</th></tr>
+        <tr><td><span class="ic" data-ic="i_wp"></span>Wooden Pickaxe</td><td>3 planks + 2 sticks</td><td>2</td><td>60</td><td>2× on stone-family</td></tr>
+        <tr><td><span class="ic" data-ic="i_sp"></span>Stone Pickaxe</td><td>3 cobble + 2 sticks</td><td>3</td><td>132</td><td>4×; can mine iron</td></tr>
+        <tr><td><span class="ic" data-ic="i_ip"></span>Iron Pickaxe</td><td>3 iron + 2 sticks</td><td>4</td><td>250</td><td>6× — fastest</td></tr>
+        <tr><td><span class="ic" data-ic="i_ws"></span>Wooden Sword</td><td>2 planks + 1 stick</td><td>4</td><td>60</td><td></td></tr>
+        <tr><td><span class="ic" data-ic="i_ss"></span>Stone Sword</td><td>2 cobble + 1 stick</td><td>5</td><td>132</td><td></td></tr>
+        <tr><td><span class="ic" data-ic="i_is"></span>Iron Sword</td><td>2 iron + 1 stick</td><td>6</td><td>250</td><td>strongest weapon</td></tr>
+        <tr><td><span class="ic" data-ic="i_wa"></span>Wooden Axe</td><td>3 planks + 2 sticks</td><td>3</td><td>60</td><td>2× on wood/planks</td></tr>
+        <tr><td><span class="ic" data-ic="i_wsh"></span>Wooden Shovel</td><td>1 plank + 2 sticks</td><td>2</td><td>60</td><td>2× on dirt-family</td></tr>
+      </table>
+      <div class="callout warn"><b>Durability:</b> one point per block mined or mob hit — tools break when it runs out. A small bar on the item shows remaining life. Iron gear lasts ~4× wood.</div>
+    </section>
+
+    <section class="panel" id="s6">
+      <h2><span class="num">06</span>CRAFTING</h2>
+      <p>Two tiers: the <strong>2×2 grid</strong> in your inventory (<span class="kbd">E</span>) and the <strong>3×3 grid</strong> of a placed Crafting Table (right-click it). Recipes match by <strong>shape anywhere in the grid</strong> — only the arrangement matters.</p>
+      <h3>⇪ TRY IT — INTERACTIVE CRAFTING TABLE</h3>
+      <div id="craft-lab">
+        <div class="craftbar">
+          <button class="mcbtn on" id="size2">2×2 Grid</button>
+          <button class="mcbtn" id="size3">3×3 Grid</button>
+          <button class="mcbtn" id="clear-craft">Clear</button>
+          <span style="color:var(--txt-dim); font-size:18px">Click an ingredient, click a slot to place; click a filled slot to remove.</span>
+        </div>
+        <div class="row">
+          <div>
+            <h3 style="margin-top:0">INGREDIENTS</h3>
+            <div id="palette"></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px">
+            <div class="grid" id="craftgrid"></div>
+            <div class="arrow">➜</div>
+            <div class="slot" id="craftresult" style="width:56px;height:56px" data-static="1"></div>
+          </div>
+          <div style="flex:1; min-width:200px">
+            <div id="craft-msg">Place ingredients…</div>
+            <h3>CRAFTED</h3>
+            <div id="crafted-list"><span style="color:var(--txt-dim)">Nothing yet — craft something!</span></div>
+          </div>
+        </div>
+      </div>
+      <h3>▤ ALL RECIPES <em>(hover any slot)</em></h3>
+      <div class="recipes" id="recipe-cards"></div>
+    </section>
+
+    <section class="panel" id="s7">
+      <h2><span class="num">07</span>INVENTORY</h2>
+      <div class="cols">
+        <div>
+          <ul>
+            <li><strong>36 slots</strong> — 9 hotbar + 27 storage; stacks up to <strong>64</strong>.</li>
+            <li><span class="kbd">E</span> opens / closes; the mouse is released while open.</li>
+            <li><strong>Left-click</strong> — pick up / place / swap a stack.</li>
+            <li><strong>Right-click</strong> — pick up half a stack, or place one item.</li>
+            <li>Closing returns crafting-grid contents (and cursor stack) to your inventory.</li>
+            <li>Drops stack into existing piles first, then empty slots; full inventory → items stay in the world.</li>
+            <li>Hotbar always visible; selected slot highlighted, item name flashes on switch.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>HOTBAR PREVIEW</h3>
+          <div style="display:flex; gap:4px; flex-wrap:wrap" id="demo-hotbar"></div>
+          <div style="margin-top:14px" class="hearts" id="demo-hearts"></div>
+          <p style="font-size:18px; color:var(--txt-dim)">↑ 10 hearts = 20 HP. Hover the slots!</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="s8">
+      <h2><span class="num">08</span>HEALTH &amp; DAMAGE</h2>
+      <div class="cols">
+        <div>
+          <ul>
+            <li><strong>10 hearts (20 HP)</strong> shown above the hotbar.</li>
+            <li><strong>Fall damage</strong> from drops over ~3 blocks — water breaks your fall.</li>
+            <li>Zombies damage on contact; <strong>creepers explode</strong> for up to 14 damage at point-blank and destroy terrain (blocks drop as items).</li>
+            <li>Health <strong>regenerates</strong> — 1 HP / 3 s after 8 s without damage.</li>
+            <li>Death → <em>"You died!"</em> screen → click to respawn at your spawn point with full health. <strong>Inventory is kept.</strong></li>
+          </ul>
+        </div>
+        <div>
+          <div class="callout warn"><b>Watch out:</b> the red vignette flash means damage. Hear a hiss? <b>A creeper is counting down — run.</b></div>
+          <div class="callout"><b>Pro tip:</b> torch the area around your base — mobs only spawn where light &lt; 7.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="s9">
+      <h2><span class="num">09</span>MOBS</h2>
+      <div class="cols">
+        <div>
+          <h3>PASSIVE ANIMALS</h3>
+          <p>Cows, pigs, sheep and chickens spawn on grass in plains, forest and rainforest. They wander, pause, and flee when hit. Kills drop <strong>raw meat</strong> (chickens drop <strong>feathers</strong>). All mobs are blocky, have gravity + collision, hop one-block steps, and animate their legs.</p>
+          <h3>HOSTILE MOBS</h3>
+          <table>
+            <tr><th>Mob</th><th>Behaviour</th></tr>
+            <tr><td><span class="creeper" data-ic="creeper_face"></span> <strong>Creeper</strong></td>
+                <td>Approaches; within 3 blocks starts a <strong>1.5 s flashing fuse</strong>, then explodes — damages you and destroys terrain. Back away to reset the fuse!</td></tr>
+            <tr><td><strong style="color:#7ada7f">Zombie</strong></td>
+                <td>Chases within 24 blocks with one-block step-up; <strong>3 damage</strong> on touch (1 s cooldown) with knockback.</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>SPAWN RULES</h3>
+          <ul>
+            <li>Hostiles spawn where <strong>effective light &lt; 7</strong> — on the surface at night, or in unlit caves <em>during the day</em>.</li>
+            <li><strong>Torch-lit areas are safe.</strong></li>
+            <li>At dawn, hostiles exposed to daylight <strong>burn away</strong>; ones in darkness survive.</li>
+            <li>Mobs never spawn inside blocks or water; they despawn when far away or when their chunk unloads.</li>
+            <li>Total mobs are capped — <strong>difficulty</strong> sets the caps (Easy 4 / Normal 10 / Hard 18 hostile; 8/10/14 passive).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="s10">
+      <h2><span class="num">10</span>LIGHTING</h2>
+      <ul>
+        <li><strong>Sky light</strong> — open sky is fully lit; light spreads down and sideways into overhangs and cave mouths with falloff, so deep caves fade to near-black.</li>
+        <li><strong>Block light</strong> — <strong>torches emit light level 14</strong>, losing one level per block outward.</li>
+        <li>A surface's brightness is the <strong>max</strong> of the two; sky light scales with time of day — the surface dims at night while torch light stays constant, and caves are dark even at noon.</li>
+        <li>Placing or breaking blocks (especially torches) recomputes lighting in the affected area.</li>
+      </ul>
+      <div class="callout"><b>Too dark?</b> The pause menu's <b>Gamma</b> slider (0.6–2.2) brightens shadows globally — great for deep caves and night play.</div>
+    </section>
+
+    <section class="panel" id="s11">
+      <h2><span class="num">11</span>DAY / NIGHT</h2>
+      <div class="cols">
+        <div>
+          <ul>
+            <li>A full cycle is <strong>10 minutes</strong> by default — configurable from <strong>1 to 30 minutes</strong> in the pause menu.</li>
+            <li>Sunrise → noon → sunset colours → dark night with a visible moon; sun and moon travel the sky; sky and fog shift through sunset oranges.</li>
+            <li>Night is when hostile mobs appear on the surface; dawn clears them.</li>
+          </ul>
+        </div>
+        <div style="text-align:center">
+          <div style="display:flex; justify-content:center; gap:30px; align-items:center">
+            <div style="width:72px;height:72px;image-rendering:pixelated;background-size:contain" data-ic="sun_icon"></div>
+            <div style="font-size:34px">☀ → ☾</div>
+            <div style="width:72px;height:72px;image-rendering:pixelated;background-size:contain;filter:hue-rotate(200deg) saturate(.3) brightness(1.4)" data-ic="sun_icon"></div>
+          </div>
+          <p style="color:var(--txt-dim); font-size:18px">10 real minutes = 1 game day (default)</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="s12">
+      <h2><span class="num">12</span>OPTIONS &amp; SAVING <em style="font-size:11px">(press P)</em></h2>
+      <table>
+        <tr><th>Option</th><th>Effect</th></tr>
+        <tr><td><strong>Resume</strong></td><td>Unpause and re-lock the mouse</td></tr>
+        <tr><td><strong>Difficulty</strong> — Easy / Normal / Hard</td><td>Mob numbers: hostile cap 4 / 10 / 18, passive cap 8 / 10 / 14</td></tr>
+        <tr><td><strong>Gamma</strong> (0.6–2.2)</td><td>Brightens dark areas — caves &amp; night. 1.0 = default</td></tr>
+        <tr><td><strong>Day length</strong> (1–30 min)</td><td>Real-time length of a full day/night cycle</td></tr>
+        <tr><td><strong>Save game</strong></td><td>Stores position, health, inventory, time of day and <em>every block you've changed</em> in browser localStorage</td></tr>
+        <tr><td><strong>Load game</strong></td><td>Restores that save exactly — even after closing the page</td></tr>
+      </table>
+      <div class="callout warn"><b>Remember:</b> the world only saves when you click <b>Save</b> — make it a habit before closing the tab. Settings save automatically.</div>
+    </section>
+
+    <section class="panel" id="s13">
+      <h2><span class="num">13</span>HUD</h2>
+      <ul>
+        <li><strong>Crosshair</strong> — centre of the screen; the targeted block gets a <strong>wireframe outline</strong>.</li>
+        <li><strong>Hotbar</strong> — 9 slots with icons + stack counts.</li>
+        <li><strong>Hearts</strong> — health above the hotbar.</li>
+        <li><strong>Held item</strong> — first-person view bottom-right; bobs while walking, sways on turns, swings on mining/attacks.</li>
+        <li><strong>Debug text</strong> (top-left) — FPS, chunk, XYZ, mob &amp; drop counts.</li>
+      </ul>
+    </section>
+
+    <section class="panel" id="s14">
+      <h2><span class="num">14</span>POLISH — PARTICLES &amp; SOUND</h2>
+      <ul>
+        <li>Block-break <strong>particles</strong> coloured to match the block; mob hit flashes; explosion smoke and sparks; torch embers flickering above lit torches.</li>
+        <li>All sound is <strong>synthesised at runtime</strong> (Web Audio): break/place crunches, footsteps, pickup pops, hurt sounds, zombie groans, creeper hiss, animal noises.</li>
+      </ul>
+      <div class="callout"><b>This page has sounds too</b> — click things! Toggle with the ♪ button up top.</div>
+    </section>
+
+    <section class="panel" id="s15">
+      <h2><span class="num">15</span>TROUBLESHOOTING</h2>
+      <table>
+        <tr><th style="width:34%">Problem</th><th>Fix</th></tr>
+        <tr><td>Blank/blue world, only UI visible</td><td>Hard-refresh (<span class="kbd">Ctrl</span>+<span class="kbd">F5</span>) — an old cached build may be running. If it persists, check the <strong>tab title</strong>: errors are reported there (<code>ERR:</code> / <code>CONSOLE:</code>).</td></tr>
+        <tr><td>Page won't load / black screen</td><td>Internet is needed the first time so Three.js can load from its CDN.</td></tr>
+        <tr><td>Stuck inside terrain after loading</td><td>You rise out automatically. If not: save, reload the page, Load again.</td></tr>
+        <tr><td>Too dark</td><td>Pause (P) → raise <strong>Gamma</strong>.</td></tr>
+        <tr><td>Too many / few monsters</td><td>Pause (P) → <strong>Difficulty</strong>.</td></tr>
+        <tr><td>Save gone</td><td>Saves live in localStorage per address — <code>http://…</code> and <code>file://</code> are different storages. Load from the same address you saved from.</td></tr>
+      </table>
+      <h3>🔗 HIDDEN TESTING OPTIONS (URL hash)</h3>
+      <p><code>#tp=X,Z</code> teleport &nbsp;·&nbsp; <code>#ty=Y</code> set height &nbsp;·&nbsp; <code>#t=0.5</code> start at a time of day (0 = midnight, 0.5 = noon) &nbsp;·&nbsp; <code>#test=1</code> start with a small kit</p>
+    </section>
+
+    <section class="panel" id="s16">
+      <h2><span class="num">16</span>TECHNICAL NOTES</h2>
+      <ul>
+        <li><strong>One file</strong>, no build step: HTML + CSS + vanilla JavaScript, Three.js from a CDN.</li>
+        <li>All textures generated at runtime as 16×16 pixel canvases in a single atlas (nearest-neighbour filtering) — including the ones on this page.</li>
+        <li>Voxel lighting (sky + torch flood-fill) baked into chunk meshes as vertex attributes; a shader uniform scales sky light with time of day.</li>
+        <li>Chunk data in typed arrays; generation &amp; meshing budgeted per frame — no freezes while streaming.</li>
+        <li>Terrain is a pure function of <code>(seed, chunkX, chunkZ)</code>; player edits are an override map reapplied after generation (the Save option persists it).</li>
+        <li>World seed is <code>1337</code> (constant <code>WORLD_SEED</code> at the top of the file) — change it for a whole new world.</li>
+      </ul>
+      <div class="callout"><b>Files:</b> <code>davecraft.html</code> — the game · <code>readme.html</code> — this manual · <code>README.md</code> — the plain-text manual</div>
+    </section>
+  </main>
+</div>
+
+<button class="mcbtn" id="top-btn">▲ Top</button>
+<footer>DAVECRAFT · a single-file voxel sandbox · not affiliated with Mojang or Microsoft<br>
+<span style="font-size:17px; opacity:.8">Textures on this page are generated pixel-by-pixel in your browser, just like in the game.</span></footer>
+
+<div id="tooltip"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   PIXEL TEXTURE ENGINE — every icon & background is generated here
+============================================================ */
+function texRand(seed){ let s=seed>>>0; return function(){ s=(s+0x6D2B79F5)|0; let t=Math.imul(s^(s>>>15),1|s); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+const T=16, ICONS={};
+function makeIcon(name, painter){
+  const cv=document.createElement('canvas'); cv.width=cv.height=T;
+  const x=cv.getContext('2d'), img=x.createImageData(T,T);
+  const R=texRand(0xBEEF + Object.keys(ICONS).length*7919);
+  const set=(px,py,r,g,b,a=255)=>{ const i=(py*T+px)*4; img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=a; };
+  painter(set,R,x);
+  x.putImageData(img,0,0);
+  ICONS[name]=cv.toDataURL();
+}
+function noisy(base, vary, extras){ return (s,R)=>{ for(let y=0;y<T;y++)for(let px=0;px<T;px++){ const v=(R()*2-1)*vary; let c=base;
+  if(extras) c=extras(px,y,R,base)||base; if(Array.isArray(c)){ s(px,y,c[0]+v,c[1]+v,c[2]+v); } else s(px,y,c,c,c); } }; }
+/* --- block textures (same spirit as the game's atlas) --- */
+makeIcon('grass_top', noisy([88,160,66],18,(x,y,R)=>{ const r=R(); return r<.18?[70,140,52]:(r<.3?[110,185,84]:null); }));
+makeIcon('dirt', noisy([134,96,67],12,(x,y,R)=>{ const r=R(); return r<.15?[110,78,52]:(r<.25?[150,112,80]:(r>.94?[160,160,155]:null)); }));
+makeIcon('grass_side',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const r=R(); let c=r<.15?[110,78,52]:(r<.25?[150,112,80]:[134,96,67]); s(x,y,c[0],c[1],c[2]); }
+  for(let x=0;x<T;x++){ const d=3+((R()*2)|0); for(let y=0;y<d;y++) s(x,y,88+(R()*20-10),160,66); } });
+makeIcon('stone', noisy([128,128,128],10,(x,y,R)=>{ const r=R(); return r<.12?[105,105,105]:(r<.2?[145,145,145]:null); }));
+makeIcon('cobble',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const cx=((x/5.3)|0)*5.3+2.6, cy=((y/5.3)|0)*5.3+2.6;
+  const d=Math.hypot(x-cx,y-cy)+(R()*1.4-.7); if(d<2.3){ const v=120+((x+y)%3)*12+(R()*16-8); s(x,y,v,v,v);} else s(x,y,70,70,70); } });
+makeIcon('coal_ore',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const r=R(); const c=r<.12?[105,105,105]:[128,128,128]; s(x,y,c[0],c[1],c[2]); }
+  for(let k=0;k<5;k++){ const bx=1+(R()*12)|0,by=1+(R()*12)|0; for(let n=0;n<6;n++) s(Math.min(15,bx+((R()*3)|0)),Math.min(15,by+((R()*3)|0)),25,25,28); } });
+makeIcon('iron_ore',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const r=R(); const c=r<.12?[105,105,105]:[128,128,128]; s(x,y,c[0],c[1],c[2]); }
+  for(let k=0;k<5;k++){ const bx=1+(R()*12)|0,by=1+(R()*12)|0; for(let n=0;n<5;n++) s(Math.min(15,bx+((R()*3)|0)),Math.min(15,by+((R()*3)|0)),216,171,133); } });
+makeIcon('sand', noisy([219,207,163],9,(x,y,R)=>{ const r=R(); return r<.15?[200,187,143]:(r<.25?[232,222,180]:null); }));
+makeIcon('water', noisy([52,110,205],14,(x,y,R)=>{ return R()<.1?[80,140,230]:null; }));
+makeIcon('log_side', noisy([112,85,50],0,(x,y,R)=>{ const st=Math.sin(y*2.1)+R()*.6; return st>0.3?[112,85,50]:(R()<.06?[70,52,30]:[92,68,40]); }));
+makeIcon('planks', noisy([168,134,84],7,(x,y,R)=>{ if(y%4===3||((x===7||x===15)&&((y/4)|0)%2===0)) return [120,94,58]; return null; }));
+makeIcon('leaves', noisy([52,120,38],14,(x,y,R)=>{ const r=R(); if(r<.08){ return [0,0,0,0]; } return r<.3?[40,100,30]:(r<.45?[66,145,50]:null); }));
+makeIcon('snow', noisy([240,244,250],6,(x,y,R)=>{ return R()<.12?[222,228,240]:null; }));
+makeIcon('bedrock', noisy([70,70,70],10,(x,y,R)=>{ const r=R(); if(((x*7+y*13)%11)<2) return [25,25,25]; return r<.25?[35,35,35]:(r<.4?[95,95,95]:null); }));
+makeIcon('table_top',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const grid=(x===4||x===11||y===4||y===11);
+  if(grid)s(x,y,90,70,44); else if(x<4||x>11||y<4||y>11)s(x,y,150,118,74); else s(x,y,168+(R()*14-7),134,84); } });
+makeIcon('torch',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++)s(x,y,0,0,0,0);
+  for(let y=6;y<16;y++)for(let x=7;x<9;x++)s(x,y,120+(R()*20-10),88,52);
+  for(let y=3;y<6;y++)for(let x=6;x<10;x++)s(x,y,255,220+((y*13)%30),80); });
+makeIcon('heart',(s)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){
+  const inH=(x>=2&&x<=13&&y>=4&&y<=11&&(x>=4||y>=6)&&(x<=11||y>=6)&&!(y===11&&(x<5||x>10)));
+  const hl=(y<=5&&x>=3&&x<=12&&!(x===3&&y===5)&&!(x===12&&y===5));
+  if(inH) s(x,y, hl?255:224, hl?138:32, hl?138:32); } });
+makeIcon('creeper_face',(s)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++)s(x,y,58,160,64);
+  const eyes=[[3,5,4,3],[9,5,4,3]], mouth=[[6,8,4,6]];
+  for(const[ex,ey,w,h]of eyes)for(let y=ey;y<ey+h;y++)for(let x=ex;x<ex+w;x++)s(x,y,10,10,10);
+  for(const[mx,my,w,h]of mouth){ for(let y=my;y<my+h;y++)for(let x=mx;x<mx+w;x++)s(x,y,10,10,10);
+    for(let y=my;y<my+3;y++){ s(mx-1,y,10,10,10); s(mx+w,y,10,10,10); } } });
+makeIcon('sun_icon',(s)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const d=Math.hypot(x-7.5,y-7.5);
+  if(d<4.5)s(x,y,255,238,140); else if(d<6.2)s(x,y,255,210,80); } });
+/* --- item string-art: tools with per-tier recoloring --- */
+const SHAPES={
+  pick:[ "......XXXXX.....",
+         "....XX#####XX...",
+         "...X###...###X..",
+         "..X##......##X..",
+         "..X#........#X..",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         ".....|||........",
+         "................" ],
+  sword:["..........XX....",
+         ".........X##X...",
+         "........X###X...",
+         ".......X###X....",
+         "......X###X.....",
+         ".....X###X......",
+         "....X###X.......",
+         "...X###X........",
+         "..XX###X........",
+         "..XXX#X.........",
+         ".XX|XXX.........",
+         "..X|X...........",
+         ".XX|XX..........",
+         "..|||...........",
+         "..|||...........",
+         "...|............" ],
+  axe:[  ".....XXXX.......",
+         "...XX####XX.....",
+         "..X#######XX....",
+         "..X########X....",
+         "..X#####XXX.....",
+         "...X###X........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "....|||.........",
+         "................" ],
+  shovel:["......XXX.......",
+          ".....X###X......",
+          "....X#####X.....",
+          "....X#####X.....",
+          "....X#####X.....",
+          ".....X###X......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "......|||.......",
+          "................" ],
+  stick:[ "................","................","..........X.....",".........XX.....","........XX......",".......XX.......","......XX........",".....XX.........","....XX..........","...XX...........","..XX............","..X.............","................","................","................","................" ],
+  lump:[ "................","................","................","................",".....XXXX.......","....X####X......","...X######X.....","...X######X.....","...X######X.....","....X####X......",".....XXXX.......","................","................","................","................","................" ],
+};
+const TIER_COLORS={ wood:['#9c7b4b','#6b5330','#5a451f'], stone:['#909090','#5c5c5c','#3f3f3f'], iron:['#d8ab85','#a0704a','#6e4a2e'] };
+function toolIcon(name, shape, tier){
+  const cols={X:TIER_COLORS[tier][2], '#':TIER_COLORS[tier][0], '|':'#8a6a3c'};
+  makeIcon(name,(s)=>{ const g=SHAPES[shape]; for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const ch=g[y][x]; if(ch==='.')continue;
+    const c=cols[ch]||'#fff'; s(x,y,parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)); } });
+}
+toolIcon('i_wp','pick','wood'); toolIcon('i_sp','pick','stone'); toolIcon('i_ip','pick','iron');
+toolIcon('i_ws','sword','wood'); toolIcon('i_ss','sword','stone'); toolIcon('i_is','sword','iron');
+toolIcon('i_wa','axe','wood'); toolIcon('i_wsh','shovel','wood');
+makeIcon('i_coal',(s)=>{ const g=SHAPES.lump; for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const ch=g[y][x]; if(ch==='.')continue;
+  s(x,y, ch==='#'?38:14, ch==='#'?38:14, ch==='#'?42:14); } });
+makeIcon('i_iron',(s)=>{ const g=SHAPES.lump; for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const ch=g[y][x]; if(ch==='.')continue;
+  s(x,y, ch==='#'?216:150, ch==='#'?171:110, ch==='#'?133:75); } });
+makeIcon('i_stick',(s)=>{ const g=SHAPES.stick; for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const ch=g[y][x]; if(ch==='.')continue;
+  s(x,y, ch==='X'?150:110, ch==='X'?112:82, ch==='X'?70:48); } });
+makeIcon('i_meat',(s)=>{ for(let y=4;y<13;y++)for(let x=2;x<14;x++){ if(Math.hypot(x-8,y-8.5)<4.6)s(x,y,205,72,72); }
+  for(let y=7;y<10;y++)for(let x=2;x<5;x++)s(x,y,235,225,215); });
+makeIcon('i_feather',(s)=>{ for(let k=0;k<10;k++){ const x=3+k,y=12-k; s(x,y,245,245,245); s(x,y-1,222,222,228); s(x,y+1,222,222,228); } });
+makeIcon('cloud',(s,R)=>{ for(let y=0;y<T;y++)for(let x=0;x<T;x++){ const inC=(y>4&&y<12&&x>1&&x<14)||(y>2&&y<14&&x>3&&x<12);
+  if(inC)s(x,y,248,250,255); } });
+/* sky bodies */
+document.getElementById('sun').style.background=`url(${ICONS.sun_icon})`;
+document.getElementById('moon').style.background=`url(${ICONS.sun_icon})`;
+document.getElementById('moon').style.filter='hue-rotate(200deg) saturate(.3) brightness(1.4)';
+
+/* apply icons to any element with data-ic */
+function applyIcons(root){ root.querySelectorAll('[data-ic]').forEach(el=>{ el.style.backgroundImage=`url(${ICONS[el.dataset.ic]})`; }); }
+applyIcons(document);
+
+/* header blocks + clouds + stars */
+const headerBlocks=['grass_top','stone','cobble','log_side','planks','sand','coal_ore','iron_ore','leaves','snow','table_top','torch','water','diamondish'];
+headerBlocks.forEach(b=>{ const d=document.createElement('div'); d.className='blk';
+  d.style.backgroundImage=`url(${ICONS[b==='diamondish'?'iron_ore':b]})`;
+  if(b==='diamondish')d.style.filter='hue-rotate(160deg)';
+  d.dataset.tip='Blocks like these make up the world'; document.getElementById('header-blocks').appendChild(d); });
+for(let i=0;i<4;i++){ const c=document.createElement('div'); c.className='cloud';
+  c.style.top=(8+i*16)+'%'; c.style.animationDuration=(50+i*22)+'s'; c.style.animationDelay=(-i*18)+'s';
+  c.style.backgroundImage=`url(${ICONS.cloud})`; document.getElementById('sky-header').appendChild(c); }
+for(let i=0;i<60;i++){ const st=document.createElement('div'); st.className='star';
+  st.style.left=Math.random()*100+'%'; st.style.top=Math.random()*70+'%'; st.style.animationDelay=(Math.random()*3)+'s';
+  document.getElementById('stars').appendChild(st); }
+/* ============================================================
+   SOUND — tiny synth blips (toggleable)
+============================================================ */
+let soundsOn=true, actx=null;
+function blip(freq,dur=0.07,type='square',vol=0.08){
+  if(!soundsOn) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.value=freq;
+    g.gain.value=vol; g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime+dur);
+    o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+const sfxPlace=()=>blip(260,0.06), sfxClick=()=>blip(700,0.035,'square',0.05),
+      sfxCraft=()=>{blip(520,0.06,'sine',0.1); setTimeout(()=>blip(780,0.08,'sine',0.09),50);},
+      sfxPop=()=>blip(340,0.05,'triangle',0.09);
+document.getElementById('sound-btn').addEventListener('click', function(){
+  soundsOn=!soundsOn; this.classList.toggle('on',soundsOn);
+  this.textContent=soundsOn?'♪ Sounds: On':'♪ Sounds: Off'; if(soundsOn)sfxClick();
+});
+document.getElementById('theme-btn').addEventListener('click', function(){
+  document.body.classList.toggle('night');
+  const n=document.body.classList.contains('night');
+  this.textContent=n?'☀ Day Mode':'☾ Night Mode'; sfxClick();
+});
+
+/* ============================================================
+   TOOLTIPS — hover anything with data-tip (slots add item info)
+============================================================ */
+const tipEl=document.getElementById('tooltip');
+function showTip(html,x,y){ tipEl.innerHTML=html; tipEl.style.display='block';
+  const r=tipEl.getBoundingClientRect();
+  tipEl.style.left=Math.min(innerWidth-r.width-10,x+16)+'px';
+  tipEl.style.top=Math.max(6,y-r.height-10)+'px'; }
+document.addEventListener('mousemove', e=>{
+  const t=e.target.closest('[data-tip]');
+  if(t){ showTip(t.dataset.tip, e.clientX, e.clientY); }
+  else tipEl.style.display='none';
+});
+/* click/touch also shows a tooltip (handy on touch screens) */
+document.addEventListener('click', e=>{
+  const t=e.target.closest('[data-tip]');
+  if(t && !t.closest('button') && !t.closest('#craftgrid') && !t.closest('#palette')){
+    showTip(t.dataset.tip, e.clientX, e.clientY);
+    clearTimeout(showTip._t);
+    showTip._t=setTimeout(()=>{ tipEl.style.display='none'; }, 1800);
+    sfxPop();
+  }
+});
+
+/* ============================================================
+   SCROLLSPY + BACK TO TOP
+============================================================ */
+const navLinks=[...document.querySelectorAll('#nav a')];
+const sections=navLinks.map(a=>document.querySelector(a.getAttribute('href')));
+function spy(){
+  let cur=0;
+  sections.forEach((s,i)=>{ if(s.getBoundingClientRect().top<140) cur=i; });
+  navLinks.forEach((a,i)=>a.classList.toggle('active', i===cur));
+  document.getElementById('top-btn').classList.toggle('show', scrollY>500);
+}
+addEventListener('scroll', spy); spy();
+document.getElementById('top-btn').addEventListener('click', ()=>{ scrollTo({top:0,behavior:'smooth'}); sfxClick(); });
+
+/* ============================================================
+   ITEMS + RECIPES (mirrors the game's data)
+============================================================ */
+const ITEMS={
+  LOG:   {name:'Wood Log', ic:'log_side', sub:'Punch a tree!'},
+  PLANKS:{name:'Planks', ic:'planks'},
+  COBBLE:{name:'Cobblestone', ic:'cobble', sub:'Mined from stone'},
+  COAL:  {name:'Coal', ic:'i_coal', sub:'Material — not placeable'},
+  IRON:  {name:'Iron', ic:'i_iron', sub:'Material — not placeable'},
+  STICK: {name:'Stick', ic:'i_stick'},
+  TABLE: {name:'Crafting Table', ic:'table_top', sub:'Right-click when placed'},
+  TORCH: {name:'Torch', ic:'torch', sub:'Emits light level 14'},
+  WPICK: {name:'Wooden Pickaxe', ic:'i_wp', sub:'2× mining · 60 uses'},
+  SPICK: {name:'Stone Pickaxe', ic:'i_sp', sub:'4× mining · 132 uses'},
+  IPICK: {name:'Iron Pickaxe', ic:'i_ip', sub:'6× mining · 250 uses'},
+  WSWORD:{name:'Wooden Sword', ic:'i_ws', sub:'4 damage'},
+  SSWORD:{name:'Stone Sword', ic:'i_ss', sub:'5 damage'},
+  ISWORD:{name:'Iron Sword', ic:'i_is', sub:'6 damage — strongest'},
+  WAXE:  {name:'Wooden Axe', ic:'i_wa', sub:'2× on wood'},
+  WSHOVEL:{name:'Wooden Shovel', ic:'i_wsh', sub:'2× on dirt-family'},
+};
+const RECIPES=[
+  {grid:[['LOG']], out:['PLANKS',4], tier:2},
+  {grid:[['PLANKS'],['PLANKS']], out:['STICK',4], tier:2},
+  {grid:[['PLANKS','PLANKS'],['PLANKS','PLANKS']], out:['TABLE',1], tier:2},
+  {grid:[['COAL'],['STICK']], out:['TORCH',4], tier:2},
+  {grid:[['PLANKS','PLANKS','PLANKS'],[null,'STICK',null],[null,'STICK',null]], out:['WPICK',1], tier:3},
+  {grid:[['COBBLE','COBBLE','COBBLE'],[null,'STICK',null],[null,'STICK',null]], out:['SPICK',1], tier:3},
+  {grid:[['IRON','IRON','IRON'],[null,'STICK',null],[null,'STICK',null]], out:['IPICK',1], tier:3},
+  {grid:[['PLANKS'],['PLANKS'],['STICK']], out:['WSWORD',1], tier:3},
+  {grid:[['COBBLE'],['COBBLE'],['STICK']], out:['SSWORD',1], tier:3},
+  {grid:[['IRON'],['IRON'],['STICK']], out:['ISWORD',1], tier:3},
+  {grid:[['PLANKS','PLANKS'],['PLANKS','STICK'],[null,'STICK']], out:['WAXE',1], tier:3},
+  {grid:[['PLANKS'],['STICK'],['STICK']], out:['WSHOVEL',1], tier:3},
+];
+function matchRecipe(grid, size){
+  let minR=99,maxR=-1,minC=99,maxC=-1;
+  for(let r=0;r<size;r++)for(let c=0;c<size;c++) if(grid[r*size+c]){ minR=Math.min(minR,r);maxR=Math.max(maxR,r);minC=Math.min(minC,c);maxC=Math.max(maxC,c); }
+  if(maxR<0) return null;
+  const h=maxR-minR+1, w=maxC-minC+1;
+  for(const rec of RECIPES){
+    if(rec.grid.length!==h || rec.grid[0].length!==w) continue;
+    if(rec.tier===3 && size<3) continue;
+    let ok=true;
+    for(let r=0;r<h&&ok;r++)for(let c=0;c<w&&ok;c++){
+      if((rec.grid[r][c]||null)!==(grid[(minR+r)*size+(minC+c)]||null)) ok=false;
+    }
+    if(ok) return rec;
+  }
+  return null;
+}
+
+/* ============================================================
+   RECIPE CARDS
+============================================================ */
+const cardsEl=document.getElementById('recipe-cards');
+for(const rec of RECIPES){
+  const card=document.createElement('div'); card.className='recipe';
+  const mini=document.createElement('div'); mini.className='mini '+(rec.grid.length>2||rec.grid[0].length>2?'m3':'m'+Math.max(2,rec.grid.length,rec.grid[0].length));
+  const cols=Math.max(rec.grid[0].length, rec.tier===2?2:0);
+  mini.style.gridTemplateColumns=`repeat(${Math.max(2,rec.grid[0].length)},32px)`;
+  const rowsN=rec.grid.length;
+  for(let r=0;r<rowsN;r++)for(let c=0;c<rec.grid[0].length;c++){
+    const ms=document.createElement('div'); ms.className='mslot';
+    const it=rec.grid[r][c];
+    if(it){ ms.innerHTML=`<div class="ic" style="background-image:url(${ICONS[ITEMS[it].ic]})"></div>`;
+      ms.dataset.tip=`<b>${ITEMS[it].name}</b>${ITEMS[it].sub?'<div class=sub>'+ITEMS[it].sub+'</div>':''}`; }
+    mini.appendChild(ms);
+  }
+  const arrow=document.createElement('div'); arrow.className='rarrow'; arrow.textContent='➜';
+  const out=document.createElement('div'); out.className='out';
+  const [oid,oct]=rec.out;
+  out.innerHTML=`<div class="slot" data-tip="<b>${ITEMS[oid].name}</b>${ITEMS[oid].sub?'<div class=sub>'+ITEMS[oid].sub+'</div>':''}">
+      <div class="ic" style="background-image:url(${ICONS[ITEMS[oid].ic]})"></div>${oct>1?`<span class="ct">${oct}</span>`:''}</div>
+    <div class="rname">${ITEMS[oid].name}${rec.tier===3?'<br><span style="font-size:15px;color:#8f8f9f">needs table</span>':''}</div>`;
+  card.append(mini,arrow,out);
+  card.addEventListener('mouseenter',()=>sfxPop());
+  cardsEl.appendChild(card);
+}
+
+/* ============================================================
+   CRAFTING SIMULATOR
+============================================================ */
+let csize=2, cgrid=new Array(9).fill(null), craftedCounts={};
+const paletteEl=document.getElementById('palette'), gridEl=document.getElementById('craftgrid'),
+      resultEl=document.getElementById('craftresult'), msgEl=document.getElementById('craft-msg'),
+      listEl=document.getElementById('crafted-list');
+const PALETTE=['LOG','PLANKS','COBBLE','COAL','IRON','STICK'];
+let held=null; // item id picked from palette
+
+PALETTE.forEach(id=>{
+  const s=document.createElement('div'); s.className='slot';
+  s.innerHTML=`<div class="ic" style="background-image:url(${ICONS[ITEMS[id].ic]})"></div>`;
+  s.dataset.tip=`<b>${ITEMS[id].name}</b>${ITEMS[id].sub?'<div class=sub>'+ITEMS[id].sub+'</div>':''}<div class=sub>Click to select, then click a grid slot</div>`;
+  s.addEventListener('click', ()=>{ held=id; [...paletteEl.children].forEach(c=>c.classList.remove('selected')); s.classList.add('selected'); sfxClick(); });
+  paletteEl.appendChild(s);
+});
+function renderGrid(){
+  gridEl.style.gridTemplateColumns=`repeat(${csize},44px)`;
+  gridEl.innerHTML='';
+  for(let i=0;i<csize*csize;i++){
+    const s=document.createElement('div'); s.className='slot';
+    const it=cgrid[i];
+    if(it){ s.innerHTML=`<div class="ic" style="background-image:url(${ICONS[ITEMS[it].ic]})"></div>`;
+      s.dataset.tip=`<b>${ITEMS[it].name}</b><div class=sub>Click to remove</div>`; }
+    else s.dataset.tip=`<div class=sub>Empty — select an ingredient first</div>`;
+    s.addEventListener('click', ()=>{
+      if(cgrid[i]){ cgrid[i]=null; sfxPop(); }
+      else if(held){ cgrid[i]=held; sfxPlace(); }
+      renderGrid(); updateResult();
+    });
+    gridEl.appendChild(s);
+  }
+}
+function updateResult(){
+  const rec=matchRecipe(cgrid, csize);
+  if(rec){
+    const [oid,oct]=rec.out;
+    resultEl.innerHTML=`<div class="ic" style="background-image:url(${ICONS[ITEMS[oid].ic]})"></div>${oct>1?`<span class="ct">${oct}</span>`:''}`;
+    resultEl.dataset.tip=`<b>${ITEMS[oid].name}</b> — click to craft!`;
+    resultEl.onclick=()=>{
+      for(let i=0;i<9;i++) if(cgrid[i]) cgrid[i]=null;
+      craftedCounts[oid]=(craftedCounts[oid]||0)+oct;
+      msgEl.textContent=`✔ Crafted ${oct}× ${ITEMS[oid].name}!`;
+      sfxCraft(); renderCrafted(); renderGrid(); updateResult();
+    };
+    msgEl.textContent=`Ready: ${ITEMS[oid].name} ×${oct}`; msgEl.style.color='var(--green)';
+  } else {
+    resultEl.innerHTML=''; resultEl.onclick=null; resultEl.dataset.tip='<div class=sub>No recipe matches</div>';
+    msgEl.textContent='Place ingredients…'; msgEl.style.color='var(--txt-dim)';
+  }
+}
+function renderCrafted(){
+  const keys=Object.keys(craftedCounts);
+  if(!keys.length) return;
+  listEl.innerHTML='';
+  keys.forEach(id=>{
+    const s=document.createElement('div'); s.className='slot';
+    s.innerHTML=`<div class="ic" style="background-image:url(${ICONS[ITEMS[id].ic]})"></div><span class="ct">${craftedCounts[id]}</span>`;
+    s.dataset.tip=`<b>${ITEMS[id].name}</b> ×${craftedCounts[id]}`;
+    listEl.appendChild(s);
+  });
+}
+document.getElementById('size2').addEventListener('click', function(){ csize=2; this.classList.add('on'); document.getElementById('size3').classList.remove('on'); cgrid.fill(null); renderGrid(); updateResult(); sfxClick(); });
+document.getElementById('size3').addEventListener('click', function(){ csize=3; this.classList.add('on'); document.getElementById('size2').classList.remove('on'); cgrid.fill(null); renderGrid(); updateResult(); sfxClick(); });
+document.getElementById('clear-craft').addEventListener('click', ()=>{ cgrid.fill(null); renderGrid(); updateResult(); sfxClick(); });
+renderGrid(); updateResult();
+
+/* ============================================================
+   DEMO HOTBAR + HEARTS
+============================================================ */
+const demoItems=['WPICK','ISWORD','TORCH','COBBLE','PLANKS','LOG','COAL','IRON',null];
+const hbEl=document.getElementById('demo-hotbar');
+demoItems.forEach((id,i)=>{
+  const s=document.createElement('div'); s.className='slot'+(i===0?' selected':'');
+  if(id){ const it=ITEMS[id];
+    s.innerHTML=`<div class="ic" style="background-image:url(${ICONS[it.ic]})"></div>${i===3?'<span class="ct">42</span>':''}`;
+    s.dataset.tip=`<b>${it.name}</b>${it.sub?'<div class=sub>'+it.sub+'</div>':''}`; }
+  else s.dataset.tip='<div class=sub>Empty slot</div>';
+  s.addEventListener('click',()=>{ [...hbEl.children].forEach(c=>c.classList.remove('selected')); s.classList.add('selected'); sfxClick(); });
+  hbEl.appendChild(s);
+});
+const heartsEl=document.getElementById('demo-hearts');
+for(let i=0;i<10;i++){ const h=document.createElement('span');
+  h.style.backgroundImage=`url(${ICONS.heart})`;
+  h.style.filter=i>=9?'grayscale(1) brightness(.4)':'none';
+  h.dataset.tip=i>=9?'Empty heart — you died a little':'Full heart (2 HP)';
+  heartsEl.appendChild(h); }
+
+/* re-apply icons for content added after first pass */
+applyIcons(document);
+</script>
+</body>
+</html>
