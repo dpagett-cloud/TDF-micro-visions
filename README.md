@@ -18,6 +18,8 @@ A suite of combat and strategy simulations designed for varying levels of comple
 - **Tetris**: A classic block drop game.
 - **Davaxian**: Arcade space shooter like it's 1979!
 - **Stop The Clock**: Measure your nerve to three decimal places.
+- **DaveCraft**: An infinite, Minecraft-style 3D voxel sandbox! [View Game](/DaveCraft/davecraft.html)
+- **DaveCraft Manual**: A fully interactive manual for the game [Access Documentation](/DaveCraft/readme.html)
 
 ### 🔬 Auxiliary Systems
 Supporting infrastructure and system utilities:
@@ -39,7 +41,7 @@ The 18 tracks: Am I Mad · Brave New World · Cadence Rising · I Don't Wanna Sl
 | `index.html` | The TDF Microvisions landing page — entry point to all sections. |
 | `music.html` | The **Apology Remastered** music index (cards, playlist builder, in-page player). |
 | `song.html` | Reusable song-detail template — any track via `song.html?id=<song-id>`. |
-| `*.html` (root) | The individual games and auxiliary apps (Alien Bomber, Go, Snake, Heart Model, etc.). |
+| `*.html` (root) | The individual games and auxiliary apps (**11** total: Alien Bomber, City Bomber, Go, Arkanoid, Snake, Pong, Tetris, Davaxian, Stop The Clock, DaveCraft, DaveCraft Manual). |
 | `mySongs/` | All music assets: `mp3/`, `lyrics/`, `descriptions/`, `artwork/`, plus `albumCover.png` and `background.png`. |
 | `mySongs/songs-data.js` | Auto-generated catalog of every song (paths, lyrics, descriptions). **Do not edit by hand.** |
 | `scripts/generate-songs-catalog.js` | Generator that scans `mySongs/` and rebuilds `songs-data.js`. |
