@@ -50,7 +50,7 @@ The first time you load the page you'll see the **instructions overlay**. Click 
 
 ### Infinite terrain
 - The world is divided into **chunks** of 16 × 16 blocks, 96 blocks tall, generated on demand from the world seed.
-- **Sea level is y = 48.** Snow appears on terrain above roughly y = 78.
+- **Sea level is y = 48.** Mountain ranges rise steeply well above the treeline; snow covers terrain above roughly **y = 74**.
 - Terrain streams in up to **8 chunks (128 blocks)** around you and unloads behind you; fog hides the edge. Walk 1,000+ blocks in any direction and new terrain keeps generating — there are no boundaries.
 - The same seed always produces the same world, so any place you leave and return to will look the same (plus your edits, which are remembered for the session).
 
@@ -74,6 +74,8 @@ Biomes blend smoothly into each other; **rivers** wind across the world as sand-
 - **Ores** generate in stone (deterministic from the seed) and are often exposed on cave walls:
   - **Coal** — common, veins of 3–8, at most depths.
   - **Iron** — less common, veins of 2–6, more frequent the deeper you dig.
+  - **Diamond** — rare, below **y = 24**, needs an iron pickaxe to mine.
+- Deserts and beaches have **sandstone strata** beneath the sand.
 - **Bedrock** (indestructible) forms the bottom of the world with a ragged 1–3 block floor.
 
 ---
@@ -95,6 +97,14 @@ Biomes blend smoothly into each other; **rivers** wind across the world as sand-
 | Snow | 0.5 | Shovel | Snow |
 | Crafting Table | 1.4 | Axe | Crafting Table |
 | Torch | ~instant | any | Torch |
+| Glass | 0.4 | any | Glass |
+| Sandstone | 1.6 | Pickaxe | Sandstone |
+| Stone Bricks | 2.6 | Pickaxe | Stone Bricks |
+| Glowstone | 0.4 | any | Glowstone |
+| Bed | 0.3 | any | Bed |
+| Furnace | 3.2 | Pickaxe | Furnace |
+| Diamond Ore | 3.5 | **Iron pickaxe+** | 1 Diamond |
+| Wool | 0.8 | any | Wool |
 | Water | — | — | not minable, no collision |
 | Bedrock | ∞ | — | **indestructible** |
 
@@ -105,26 +115,36 @@ Notes:
 - You cannot place a block **inside yourself**, and torches can only be placed on **top faces** of solid blocks.
 
 ### Mining speed details
-Mining time ≈ `hardness ÷ tool multiplier × 0.45 s`, where the multiplier applies when the tool type matches the block: **wood 2×, stone 4×, iron 6×** (1× with the wrong or no tool). Wrong-tool penalty extra ×3.5 on pickaxe blocks (and ×4 more on iron ore without a stone pick).
+Mining time ≈ `hardness ÷ tool multiplier × 0.45 s`, where the multiplier applies when the tool type matches the block: **wood 2×, stone 4×, iron 6×, diamond 9×** (1× with the wrong or no tool). Wrong-tool penalty extra ×3.5 on pickaxe blocks, ×4 on iron ore without a stone pickaxe, ×5 on diamond ore without an iron pickaxe.
 
 ---
 
 ## 5. Items and Tools
 
-Non-placeable items: **Coal, Iron, Stick, Raw Meat, Feather** — materials for crafting (meat is a future food item; feathers come from chickens).
+Non-placeable items: **Coal, Iron, Diamond, Stick, Raw Meat, Feather** — materials for crafting (meat is a future food item; feathers come from chickens).
 
 | Tool | Crafted from | Damage | Durability | Notes |
 |---|---|---|---|---|
 | Wooden Pickaxe | 3 planks + 2 sticks | 2 | 60 | 2× mining on stone-family |
 | Stone Pickaxe | 3 cobble + 2 sticks | 3 | 132 | 4× mining; can mine iron |
-| Iron Pickaxe | 3 iron + 2 sticks | 4 | 250 | 6× mining |
+| Iron Pickaxe | 3 iron + 2 sticks | 4 | 250 | 6×; can mine **diamond** |
+| **Diamond Pickaxe** | 3 diamonds + 2 sticks | 5 | 600 | 9× — fastest |
 | Wooden Sword | 2 planks + 1 stick | 4 | 60 | |
 | Stone Sword | 2 cobble + 1 stick | 5 | 132 | |
-| Iron Sword | 2 iron + 1 stick | 6 | 250 | strongest weapon |
+| Iron Sword | 2 iron + 1 stick | 6 | 250 | |
+| **Diamond Sword** | 2 diamonds + 1 stick | 7 | 600 | strongest weapon |
 | Wooden Axe | 3 planks + 2 sticks | 3 | 60 | 2× on wood/planks |
+| Stone Axe | 3 cobble + 2 sticks | 4 | 132 | 4× on wood |
+| Iron Axe | 3 iron + 2 sticks | 5 | 250 | 6× on wood |
+| Diamond Axe | 3 diamonds + 2 sticks | 6 | 600 | 9× on wood |
 | Wooden Shovel | 1 plank + 2 sticks | 2 | 60 | 2× on dirt/sand/grass/snow |
+| Stone Shovel | 1 cobble + 2 sticks | 3 | 132 | 4× |
+| Iron Shovel | 1 iron + 2 sticks | 4 | 250 | 6× |
+| Diamond Shovel | 1 diamond + 2 sticks | 5 | 600 | 9× |
 
-Tools lose 1 durability per block mined or mob hit and **break when it runs out** (a small durability bar shows on the item). Iron tools last much longer — iron is always worth gathering.
+**Diamonds** are the end-game material: diamond ore spawns rarely in stone **below y ≈ 24** (often in caves) and needs an **iron pickaxe or better**.
+
+Tools lose 1 durability per block mined or mob hit and **break when it runs out** (a small durability bar shows on the item). Diamond gear lasts ~10× wood.
 
 ---
 
@@ -144,6 +164,9 @@ Arrange ingredients in the grid; the **result slot** shows a live preview. Click
 | Sticks | `P` / `P` (2 planks stacked) | 4 Sticks |
 | Crafting Table | `P P` / `P P` (2×2 square) | 1 Crafting Table |
 | Torches | `C` / `S` (coal on stick) | 4 Torches |
+| Sandstone | `S S` / `S S` (4 sand) | 1 Sandstone |
+| Stone Bricks | `K K` / `K K` (4 stone) | 4 Stone Bricks |
+| Glowstone | `C C` / `C C` (4 coal) | 1 Glowstone |
 
 ### Recipes requiring the 3×3 crafting table
 
@@ -152,13 +175,43 @@ Arrange ingredients in the grid; the **result slot** shows a live preview. Click
 | Wooden Pickaxe | `PPP` / `_S_` / `_S_` | 1 |
 | Stone Pickaxe | `KKK` / `_S_` / `_S_` | 1 |
 | Iron Pickaxe | `III` / `_S_` / `_S_` | 1 |
+| Diamond Pickaxe | `DDD` / `_S_` / `_S_` | 1 |
 | Wooden Sword | `P` / `P` / `S` | 1 |
 | Stone Sword | `K` / `K` / `S` | 1 |
 | Iron Sword | `I` / `I` / `S` | 1 |
+| Diamond Sword | `D` / `D` / `S` | 1 |
 | Wooden Axe | `PP` / `PS` / `_S` | 1 |
+| Stone Axe | `KK` / `KS` / `_S` | 1 |
+| Iron Axe | `II` / `IS` / `_S` | 1 |
+| Diamond Axe | `DD` / `DS` / `_S` | 1 |
 | Wooden Shovel | `P` / `S` / `S` | 1 |
+| Stone Shovel | `K` / `S` / `S` | 1 |
+| Iron Shovel | `I` / `S` / `S` | 1 |
+| Diamond Shovel | `D` / `S` / `S` | 1 |
+| Furnace | `KKK` / `K_K` / `KKK` (8 cobble ring) | 1 |
+| Bed | `WWW` / `PPP` (3 wool over 3 planks) | 1 |
 
-Key: `P` Planks, `K` Cobblestone, `I` Iron, `S` Stick, `L` Wood Log, `C` Coal, `_` empty.
+Key: `P` Planks, `K` Cobblestone, `I` Iron, `D` Diamond, `S` Stick, `L` Wood Log, `C` Coal, `W` Wool.
+
+### 6b. Furnace — smelting
+
+Craft a **Furnace** (8 cobblestone in a ring) and right-click it when placed. Put a smeltable item in the left slot, **fuel** in the bottom slot, and collect the result on the right. Smelting takes 4 seconds per item and continues while the UI is closed. Breaking a furnace drops its contents.
+
+| Smelt | Result |
+|---|---|
+| Sand | Glass |
+| Cobblestone | Stone |
+| Wood Log | Coal (charcoal) |
+
+| Fuel | Burns for |
+|---|---|
+| Coal | 32 s (8 items) |
+| Wood Log / Planks | 6 s |
+| Stick | 2 s |
+
+### 6c. Bed — sleeping and spawn points
+
+Sheep drop **wool** (1–2 each). Craft a **Bed** from 3 wool over 3 planks, place it, and **right-click it at night** to sleep: time skips to dawn, all exposed hostile mobs burn away, and your **spawn point moves to the bed**. Right-clicking during the day just tells you it's too bright.
 
 ---
 
@@ -187,7 +240,7 @@ Key: `P` Planks, `K` Cobblestone, `I` Iron, `S` Stick, `L` Wood Log, `C` Coal, `
 ## 9. Mobs
 
 ### Passive animals
-Cows, pigs, sheep and chickens spawn on grass in plains, forest and rainforest. They wander, pause, walk on; when hit they flee briefly. Killed animals burst into particles and drop **raw meat** (or **feathers** from chickens). All mobs are blocky, procedurally textured, walk with a leg-swing animation, have gravity and collision, and can hop up one-block steps.
+Cows, pigs, sheep and chickens spawn on grass in plains, forest and rainforest. They wander, pause, walk on; when hit they flee briefly. Killed animals burst into particles and drop **raw meat**, plus **wool** from sheep and **feathers** from chickens. All mobs are blocky, procedurally textured, walk with a leg-swing animation, have gravity and collision, and can hop up one-block steps.
 
 ### Hostile mobs (night / darkness)
 | Mob | Behaviour |
@@ -231,6 +284,11 @@ Mob management: total mobs are capped for performance, mobs never spawn inside b
 | **Load game** | Restores that save exactly — even after closing and reopening the page |
 
 The game freezes completely while paused. **Settings save automatically** and persist between sessions; the world **save** only happens when you click Save (make it a habit before closing the tab).
+
+### New worlds — random seeds
+- The title screen and the pause menu both have a **🎲 New World** button: it generates a fresh world from a **random seed**, resets your inventory and time of day, and respawns you.
+- The current **seed is shown in the debug HUD** (top-left). Saves store their seed, so loading a save restores its exact world.
+- The default seed constant (`WORLD_SEED = 1337` at the top of the file) only applies to the very first launch.
 
 ---
 

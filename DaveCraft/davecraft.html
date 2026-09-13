@@ -53,6 +53,15 @@
   #pausescreen input[type=range]{width:190px}
   #pausescreen .pausehint{margin-top:14px;font-size:12px;color:#889}
   #saveMsg{font-size:12px;color:#8f8;margin-left:6px}
+  .mcbtn{font-family:'Segoe UI',Arial,sans-serif;font-size:15px;color:#fff;cursor:pointer;background:#6a6a6a;
+    border:2px solid;border-color:#a8a8a8 #2e2e2e #2e2e2e #a8a8a8;padding:8px 14px;margin:2px}
+  .mcbtn:hover{background:#7a8ab8;border-color:#c0ccf0 #39456e #39456e #c0ccf0}
+  .flabel{font-size:12px;color:#555;text-align:center;margin-bottom:3px}
+  .fflame{width:22px;height:34px;background:#8b8b8b;position:relative;overflow:hidden;border:2px solid;border-color:#373737 #fff #fff #373737}
+  .fburn{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(#ffdd55,#ff7722);height:0%}
+  .farrow{width:70px;height:16px;background:#8b8b8b;position:relative;border:2px solid;border-color:#373737 #fff #fff #373737}
+  .fprog{position:absolute;left:0;top:0;bottom:0;background:#fff;width:0%}
+  #sleepfade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 1.2s;z-index:70}
   #vignette{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px rgba(0,0,0,.0);transition:box-shadow .2s;z-index:5}
 </style>
 </head>
@@ -80,6 +89,9 @@
     <b>P</b><span>pause / options / save-load</span>
   </div>
   <div class="click">Click anywhere to play</div>
+  <div style="margin-top:18px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap">
+    <button class="mcbtn" id="btnNewWorld">🎲 New World (random seed)</button>
+  </div>
 </div>
 <div class="screen" id="invscreen">
   <h3>Inventory</h3>
@@ -102,7 +114,14 @@
   <div style="height:6px"></div>
   <div class="grid" id="tablehotbar" style="grid-template-columns:repeat(9,44px)"></div>
 </div>
+<div class="screen" id="furnscreen">
+  <h3>Furnace</h3>
+  <div id="fslots" style="display:flex;gap:14px;align-items:center"></div>
+  <div style="height:10px"></div>
+  <div class="grid" id="furnhotbar" style="grid-template-columns:repeat(9,44px)"></div>
+</div>
 <div id="heldcursor"><div class="sloticon"></div><span class="slotcount"></span></div>
+<div id="sleepfade"></div>
 <div id="deadscreen"><h1>You died!</h1><div>Click to respawn</div></div>
 <div id="pausescreen">
   <div class="panel">
@@ -120,6 +139,7 @@
     <div class="optrow">
       <button id="btnSave">Save game</button>
       <button id="btnLoad">Load game</button>
+      <button id="btnNewWorld2">🎲 New World</button>
       <span id="saveMsg"></span>
     </div>
     <div class="pausehint">Game is paused — press P or click Resume to continue</div>
@@ -165,12 +185,15 @@ function saveSettings(){ localStorage.setItem('davecraft_settings', JSON.stringi
 ============================================================ */
 // Block ids
 const B = { AIR:0, GRASS:1, DIRT:2, STONE:3, COBBLE:4, COAL:5, IRON:6, SAND:7,
-            WATER:8, LOG:9, PLANKS:10, LEAVES:11, SNOW:12, TABLE:13, TORCH:14, BEDROCK:15 };
+            WATER:8, LOG:9, PLANKS:10, LEAVES:11, SNOW:12, TABLE:13, TORCH:14, BEDROCK:15,
+            GLASS:16, SANDSTONE:17, STONEBRICK:18, GLOWSTONE:19, BED:20, FURNACE:21, DIAMOND_ORE:22, WOOL:23 };
 // Item ids (non-block) start at 100
-const I = { COAL_ITEM:100, IRON_ITEM:101, STICK:102, MEAT:103, FEATHER:104,
+const I = { COAL_ITEM:100, IRON_ITEM:101, STICK:102, MEAT:103, FEATHER:104, DIAMOND:105,
             WOOD_PICK:110, STONE_PICK:111, IRON_PICK:112,
             WOOD_SWORD:113, STONE_SWORD:114, IRON_SWORD:115,
-            WOOD_AXE:116, WOOD_SHOVEL:117 };
+            WOOD_AXE:116, WOOD_SHOVEL:117,
+            STONE_AXE:118, IRON_AXE:119, STONE_SHOVEL:120, IRON_SHOVEL:121,
+            DIAMOND_PICK:122, DIAMOND_SWORD:123, DIAMOND_AXE:124, DIAMOND_SHOVEL:125 };
 
 const DEFS = {};
 function defBlock(id, name, o){ DEFS[id] = Object.assign({id, name, block:true, hardness:1, tool:null, drops:id}, o); }
@@ -189,6 +212,14 @@ defBlock(B.SNOW,'Snow',{hardness:.5,tool:'shovel'});
 defBlock(B.TABLE,'Crafting Table',{hardness:1.4,tool:'axe'});
 defBlock(B.TORCH,'Torch',{hardness:.05,noCollide:true,transparent:true,light:14});
 defBlock(B.BEDROCK,'Bedrock',{hardness:Infinity});
+defBlock(B.GLASS,'Glass',{hardness:.4,transparent:true});
+defBlock(B.SANDSTONE,'Sandstone',{hardness:1.6,tool:'pickaxe',needsPick:true});
+defBlock(B.STONEBRICK,'Stone Bricks',{hardness:2.6,tool:'pickaxe',needsPick:true});
+defBlock(B.GLOWSTONE,'Glowstone',{hardness:.4,light:15});
+defBlock(B.BED,'Bed',{hardness:.3});
+defBlock(B.FURNACE,'Furnace',{hardness:3.2,tool:'pickaxe',needsPick:true});
+defBlock(B.DIAMOND_ORE,'Diamond Ore',{hardness:3.5,tool:'pickaxe',needsPick:true,needsIronPick:true,drops:-1});
+defBlock(B.WOOL,'Wool',{hardness:.8});
 
 function defItem(id,name,o){ DEFS[id] = Object.assign({id,name,block:false},o); }
 defItem(I.COAL_ITEM,'Coal',{});
@@ -196,6 +227,7 @@ defItem(I.IRON_ITEM,'Iron',{});
 defItem(I.STICK,'Stick',{});
 defItem(I.MEAT,'Raw Meat',{food:true});
 defItem(I.FEATHER,'Feather',{});
+defItem(I.DIAMOND,'Diamond',{});
 defItem(I.WOOD_PICK,'Wooden Pickaxe',{tool:'pickaxe',tier:1,durability:60,dmg:2});
 defItem(I.STONE_PICK,'Stone Pickaxe',{tool:'pickaxe',tier:2,durability:132,dmg:3});
 defItem(I.IRON_PICK,'Iron Pickaxe',{tool:'pickaxe',tier:3,durability:250,dmg:4});
@@ -204,9 +236,17 @@ defItem(I.STONE_SWORD,'Stone Sword',{tool:'sword',tier:2,durability:132,dmg:5});
 defItem(I.IRON_SWORD,'Iron Sword',{tool:'sword',tier:3,durability:250,dmg:6});
 defItem(I.WOOD_AXE,'Wooden Axe',{tool:'axe',tier:1,durability:60,dmg:3});
 defItem(I.WOOD_SHOVEL,'Wooden Shovel',{tool:'shovel',tier:1,durability:60,dmg:2});
+defItem(I.STONE_AXE,'Stone Axe',{tool:'axe',tier:2,durability:132,dmg:4});
+defItem(I.IRON_AXE,'Iron Axe',{tool:'axe',tier:3,durability:250,dmg:5});
+defItem(I.STONE_SHOVEL,'Stone Shovel',{tool:'shovel',tier:2,durability:132,dmg:3});
+defItem(I.IRON_SHOVEL,'Iron Shovel',{tool:'shovel',tier:3,durability:250,dmg:4});
+defItem(I.DIAMOND_PICK,'Diamond Pickaxe',{tool:'pickaxe',tier:4,durability:600,dmg:5});
+defItem(I.DIAMOND_SWORD,'Diamond Sword',{tool:'sword',tier:4,durability:600,dmg:7});
+defItem(I.DIAMOND_AXE,'Diamond Axe',{tool:'axe',tier:4,durability:600,dmg:6});
+defItem(I.DIAMOND_SHOVEL,'Diamond Shovel',{tool:'shovel',tier:4,durability:600,dmg:5});
 
 function isSolid(id){ return id!==B.AIR && id!==B.WATER && id!==B.TORCH; }
-function isOpaque(id){ return id!==B.AIR && id!==B.WATER && id!==B.LEAVES && id!==B.TORCH; }
+function isOpaque(id){ return id!==B.AIR && id!==B.WATER && id!==B.LEAVES && id!==B.TORCH && id!==B.GLASS; }
 // Mining time (seconds) base; tool multipliers
 function miningTime(blockId, heldId){
   const d = DEFS[blockId]; if(!d || d.hardness===Infinity) return Infinity;
@@ -216,11 +256,12 @@ function miningTime(blockId, heldId){
   // only real tools (with a tier) grant a speed bonus — plain blocks that merely
   // name a preferred tool (stone/pickaxe, dirt/shovel...) must not match here
   if(held && held.tool && held.tier){
-    if(held.tool === d.tool) mult = [1,2,4,6][held.tier];
+    if(held.tool === d.tool) mult = [1,2,4,6,9][held.tier];
     else if(held.tool==='sword' && d.tool===null) mult = 1.5;
   }
   if(d.needsPick && (!held || held.tool!=='pickaxe' || !held.tier)) t *= 3.5;
   if(d.needsStonePick && (!held || held.tool!=='pickaxe' || !held.tier || held.tier<2)) t *= 4;
+  if(d.needsIronPick && (!held || held.tool!=='pickaxe' || !held.tier || held.tier<3)) t *= 5;
   const time = (t/mult)*0.45;
   return isFinite(time) ? time : Infinity;
 }
@@ -293,6 +334,57 @@ newTile('torch',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ s(x,y,0,0,0
   for(let y=3;y<6;y++)for(let x=6;x<10;x++){ s(x,y,255,220+((y*13)%30),80); } });
 // --- Bedrock
 newTile('bedrock',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const r=R(); let c=[70,70,70]; if(r<.25)c=[35,35,35]; else if(r<.4)c=[95,95,95]; if(((x*7+y*13)%11)<2)c=[25,25,25]; s(x,y,c[0],c[1],c[2]); } });
+// --- Glass (transparent centre, framed)
+newTile('glass',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const edge = x===0||y===0||x===15||y===15;
+  if(edge) s(x,y,210,230,235,255);
+  else if((x===3&&y<6)||(x===4&&y>=6&&y<9)) s(x,y,235,245,250,180);
+  else s(x,y,0,0,0,0); } });
+// --- Sandstone (banded sand)
+newTile('sandstone',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const band = (y===3||y===4||y===9||y===13);
+  const r=R(); let c=[224,212,166]; if(band)c=[196,180,130]; else if(r<.12)c=[208,194,148]; s(x,y,c[0],c[1],c[2]); } });
+// --- Stone bricks
+newTile('stonebrick',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  const row=(y/4)|0; const seamY = y%4===3; const off=row%2?4:0; const seamX = ((x+off)%8)===7;
+  if(seamY||seamX) s(x,y,95,95,95);
+  else { const r=R(); const c=r<.12?[105,105,105]:(r<.2?[145,145,145]:[128,128,128]); s(x,y,c[0],c[1],c[2]); } } });
+// --- Glowstone (warm mosaic, opaque, emits light 15)
+newTile('glowstone',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const cellx=((x/4)|0), celly=((y/4)|0);
+  const d=Math.hypot((x%4)-1.5,(y%4)-1.5);
+  if(d<1.4+R()*.5) s(x,y,255, 220+(cellx*7+celly*5)%25, 130);
+  else s(x,y,190+((cellx+celly)%3)*15, 140, 60); } });
+// --- Bed top (red blanket + white pillow)
+newTile('bed_top',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  if(y<5) s(x,y, 235+R()*10, 235+R()*10, 240);
+  else { const stripe=(y===5||y===15); s(x,y, stripe?120:178, stripe?20:40, stripe?20:48); }
+  if(y>=8&&y<=11&&(x===7||x===8)) s(x,y,150,30,36); } });
+newTile('bed_side',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  if(y<2) s(x,y,178,40,48);
+  else if(y<5) s(x,y,235,235,240);
+  else s(x,y, 140+R()*12, 96, 56); } });
+// --- Furnace
+newTile('furnace_side',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  const opening = x>=4&&x<=11&&y>=7&&y<=14;
+  if(opening){ const lit=false; s(x,y, lit?255:25, lit?140:25, lit?30:25); }
+  else { const r=R(); const c=r<.15?[100,100,100]:(r<.3?[120,120,120]:[110,110,110]); s(x,y,c[0],c[1],c[2]); } } });
+newTile('furnace_front_lit',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  const opening = x>=4&&x<=11&&y>=7&&y<=14;
+  if(opening){ const f=R(); s(x,y, 255, 120+(f*100)|0, 30); }
+  else { const r=R(); const c=r<.15?[100,100,100]:[110,110,110]; s(x,y,c[0],c[1],c[2]); } } });
+newTile('furnace_top',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const r=R();
+  const c=r<.15?[100,100,100]:(r<.3?[130,130,130]:[118,118,118]); s(x,y,c[0],c[1],c[2]); } });
+// --- Diamond ore
+newTile('diamond_ore',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const r=R();
+  const c=r<.12?[105,105,105]:[128,128,128]; s(x,y,c[0],c[1],c[2]); }
+  for(let k=0;k<5;k++){ const bx=1+(R()*12)|0, by=1+(R()*12)|0;
+    for(let n=0;n<4;n++){ const x=bx+((R()*3)|0), y=by+((R()*3)|0); if(x<16&&y<16){ s(x,y,110,235,225); if(R()<.4)s(x,y,60,190,185); } } } });
+// --- Wool
+newTile('wool',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ const r=R();
+  let c=[232,232,232]; if(r<.15)c=[214,214,216]; else if(r<.25)c=[245,245,245];
+  if(((x*5+y*3)%13)<1)c=[200,200,205]; s(x,y,c[0],c[1],c[2]); } });
+// --- Diamond item icon
+newTile('i_diamond',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++)s(x,y,0,0,0,0);
+  for(let y=4;y<13;y++)for(let x=3;x<13;x++){ const d=Math.hypot(x-7.5,y-8);
+    if(d<3.8){ s(x,y, 120,235,225); if(y<8)s(x,y,190,250,246); } } });
 // --- Item icons: coal, iron, stick, meat, feather
 newTile('i_coal',(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++){ s(x,y,0,0,0,0); }
   for(let y=5;y<12;y++)for(let x=4;x<12;x++){ if(Math.hypot(x-7.5,y-8)<3.6)s(x,y,30+(R()*25),30,34); } });
@@ -319,11 +411,19 @@ function toolIcon(name, headColor, headColor2, kind){
 toolIcon('i_wp',[150,118,74],[120,94,58],'pick');
 toolIcon('i_sp',[130,130,130],[95,95,95],'pick');
 toolIcon('i_ip',[216,171,133],[160,110,80],'pick');
+toolIcon('i_dp',[110,235,225],[40,170,165],'pick');
 toolIcon('i_ws',[150,118,74],[120,94,58],'sword');
 toolIcon('i_ss',[130,130,130],[95,95,95],'sword');
 toolIcon('i_is',[216,171,133],[160,110,80],'sword');
+toolIcon('i_ds',[110,235,225],[40,170,165],'sword');
 toolIcon('i_wa',[150,118,74],[120,94,58],'axe');
+toolIcon('i_sa',[130,130,130],[95,95,95],'axe');
+toolIcon('i_ia',[216,171,133],[160,110,80],'axe');
+toolIcon('i_da',[110,235,225],[40,170,165],'axe');
 toolIcon('i_wsh',[150,118,74],[120,94,58],'shovel');
+toolIcon('i_ssh',[130,130,130],[95,95,95],'shovel');
+toolIcon('i_ish',[216,171,133],[160,110,80],'shovel');
+toolIcon('i_dsh',[110,235,225],[40,170,165],'shovel');
 // --- Crack overlay stages (5)
 for(let st=0; st<5; st++){
   newTile('crack'+st,(s,R)=>{ for(let y=0;y<16;y++)for(let x=0;x<16;x++)s(x,y,0,0,0,0);
@@ -350,10 +450,21 @@ ft(B.SNOW,'snow');
 ft(B.TABLE,'table_side','table_top','planks');
 ft(B.TORCH,'torch');
 ft(B.BEDROCK,'bedrock');
+ft(B.GLASS,'glass');
+ft(B.SANDSTONE,'sandstone');
+ft(B.STONEBRICK,'stonebrick');
+ft(B.GLOWSTONE,'glowstone');
+ft(B.BED,'bed_side','bed_top','planks');
+ft(B.FURNACE,'furnace_side','furnace_top','furnace_top');
+ft(B.DIAMOND_ORE,'diamond_ore');
+ft(B.WOOL,'wool');
 const ITEM_TILES = {};
 [[I.COAL_ITEM,'i_coal'],[I.IRON_ITEM,'i_iron'],[I.STICK,'i_stick'],[I.MEAT,'i_meat'],[I.FEATHER,'i_feather'],
- [I.WOOD_PICK,'i_wp'],[I.STONE_PICK,'i_sp'],[I.IRON_PICK,'i_ip'],[I.WOOD_SWORD,'i_ws'],[I.STONE_SWORD,'i_ss'],
- [I.IRON_SWORD,'i_is'],[I.WOOD_AXE,'i_wa'],[I.WOOD_SHOVEL,'i_wsh']]
+ [I.DIAMOND,'i_diamond'],
+ [I.WOOD_PICK,'i_wp'],[I.STONE_PICK,'i_sp'],[I.IRON_PICK,'i_ip'],[I.DIAMOND_PICK,'i_dp'],
+ [I.WOOD_SWORD,'i_ws'],[I.STONE_SWORD,'i_ss'],[I.IRON_SWORD,'i_is'],[I.DIAMOND_SWORD,'i_ds'],
+ [I.WOOD_AXE,'i_wa'],[I.STONE_AXE,'i_sa'],[I.IRON_AXE,'i_ia'],[I.DIAMOND_AXE,'i_da'],
+ [I.WOOD_SHOVEL,'i_wsh'],[I.STONE_SHOVEL,'i_ssh'],[I.IRON_SHOVEL,'i_ish'],[I.DIAMOND_SHOVEL,'i_dsh']]
  .forEach(([id,t])=>ITEM_TILES[id]=t);
 
 function tileToUV(name){ const [c,r]=tileUV[name]; return [c/ATLAS_COLS, 1-(r+1)/ATLAS_COLS, (c+1)/ATLAS_COLS, 1-r/ATLAS_COLS]; } // u0,v0,u1,v1 (v1=top)
@@ -397,26 +508,26 @@ function fbm2(x,y,seed,oct=4,lac=2,gain=.5){
    5/6. WORLD GENERATION (pure function of seed, cx, cz)
 ============================================================ */
 const SEA_SALT=10, AMP_SALT=20, TEMP_SALT=30, HUM_SALT=40, MOUNT_SALT=50, RIVER_SALT=60, CAVE1=70, CAVE2=80, CAVERN=90, ORE_SALT=100;
-const GEN = WORLD_SEED;
+let GEN = WORLD_SEED;   // world seed — changed by "New World"; terrain is a pure function of it
 
 function biomeAt(x,z){
   // returns {temp, hum, mount, height} — continental height + biome-blended amplitude
   const cont = fbm2(x*0.004, z*0.004, GEN+SEA_SALT, 4);          // base continents 0..1
   const temp = fbm2(x*0.0025, z*0.0025, GEN+TEMP_SALT, 3);
   const hum  = fbm2(x*0.0025+777, z*0.0025-777, GEN+HUM_SALT, 3);
-  const mount = Math.pow(Math.max(0, fbm2(x*0.006, z*0.006, GEN+MOUNT_SALT, 4)-0.52)/0.48, 1.6); // 0..1 mountain mask
-  // amplitude: plains low, mountains very high
+  const mount = Math.pow(Math.max(0, fbm2(x*0.006, z*0.006, GEN+MOUNT_SALT, 4)-0.45)/0.55, 1.3); // 0..1 mountain mask
+  // amplitude: plains low, mountains very high — plus a base lift so ranges actually rise
   const detail = fbm2(x*0.015, z*0.015, GEN+AMP_SALT, 4);
-  const amp = 4 + mount*52;
-  let h = SEA + 1 + (cont-0.45)*44 + (detail-0.5)*amp;
+  const amp = 8 + mount*60;
+  let h = SEA + 1 + (cont-0.45)*44 + (detail-0.5)*amp + mount*38;
   return {temp, hum, mount, h};
 }
 function biomeNameAt(x,z,elev){
   const {temp,hum,mount}=biomeAt(x,z);
   if(elev < SEA-1) return 'ocean';
   if(elev <= SEA+1) return 'beach';
-  if(mount>0.62 || (elev>SEA+34)) return 'snowmount';
-  if(mount>0.42) return 'rocky';
+  if(mount>0.55 || (elev>SEA+26)) return 'snowmount';
+  if(mount>0.38) return 'rocky';
   if(temp>0.62 && hum<0.42) return 'desert';
   if(temp>0.58 && hum>0.6) return 'jungle';
   if(hum>0.52) return 'forest';
@@ -462,7 +573,7 @@ function generateChunk(cx,cz){
   const wx0 = cx*CHUNK, wz0 = cz*CHUNK;
   const heightCache = new Int16Array(CHUNK*CHUNK);
   const biomeCache = [];
-  const snowLine = SEA+30;
+  const snowLine = SEA+26;
 
   function columnInfo(wx,wz){
     const b = biomeAt(wx,wz);
@@ -497,11 +608,16 @@ function generateChunk(cx,cz){
           if(y<SEA && (biome==='ocean')) id = (y>SEA-4? B.SAND : B.DIRT);
         }
         else if(y>h-4){
-          if(biome==='desert'||biome==='beach') id=B.SAND;
+          if(biome==='desert'||biome==='beach') id = y>h-3 ? B.SAND : B.SANDSTONE;
           else if(biome==='rocky'||biome==='snowmount') id=B.STONE;
           else id=B.DIRT;
         }
+        else if(y>h-7 && (biome==='desert'||biome==='beach')) id = B.SANDSTONE;
         else id = B.STONE;
+        // ---- diamond ore: rare, only in stone deep down
+        if(id===B.STONE && y<24 && hash3(wx>>2,y>>2,wz>>2,GEN+7)<0.0035 && hash3(wx,y,wz,GEN+8)<0.3){
+          id = B.DIAMOND_ORE;
+        }
         // ---- caves: two spaghetti fields + caverns; never remove bedrock; density up with depth
         if(id!==B.BEDROCK && y>2){
           const depthBoost = 0.008 + (SEA-y)*0.00025;
@@ -605,6 +721,7 @@ function computeLight(ch){
   for(let y=0;y<HEIGHT;y++)for(let pz=0;pz<W;pz++)for(let px=0;px<W;px++){
     const i=gi(px,y,pz);
     if(blocks[i]===B.TORCH){ blk[i]=14; q2.push(px,y,pz); }
+    if(blocks[i]===B.GLOWSTONE){ blk[i]=15; q2.push(px,y,pz); }
     if(sky[i]>0) q.push(px,y,pz);
   }
   function spread(arr,queue){
@@ -715,7 +832,7 @@ function buildChunkMesh(ch){
     const id=ch.get(x,y,z);
     if(id===B.AIR) continue;
     if(id===B.TORCH){ addTorchGeometry(groups.opaque, ch, x,y,z, wx0, wz0); continue; }
-    const g = id===B.WATER? groups.water : (id===B.LEAVES? groups.leaves : groups.opaque);
+    const g = id===B.WATER? groups.water : ((id===B.LEAVES||id===B.GLASS)? groups.leaves : groups.opaque);
     const tiles = FACE_TILES[id];
     for(let f=0; f<6; f++){
       const F=FACES[f];
@@ -1141,12 +1258,27 @@ function breakBlock(x,y,z){
   if(!def||def.hardness===Infinity) return;
   world.setBlock(x,y,z,B.AIR);
   window.__DC_STATS.mined++;
+  // furnace spills its contents
+  if(id===B.FURNACE){
+    const key=x+','+y+','+z, f=furnaces.get(key);
+    if(f){
+      for(const slot of [f.in,f.fuel,f.out]) if(slot) spawnDrop(x+0.5,y+0.5,z+0.5,slot.id,slot.count);
+      furnaces.delete(key);
+    }
+  }
+  // breaking the block under a bed/torch pops it too
+  const above=world.getBlock(x,y+1,z);
+  if(above===B.TORCH||above===B.BED){
+    world.setBlock(x,y+1,z,B.AIR);
+    spawnDrop(x+0.5,y+1.5,z+0.5,above,1);
+  }
   sfx.break_();
   spawnBlockParticles(x,y,z,id);
   // drops
   let dropId=null, count=1;
   if(id===B.COAL){ dropId=I.COAL_ITEM; count=1+((hash3(x,y,z,Date.now()&65535)*2)|0); }
   else if(id===B.IRON){ dropId=I.IRON_ITEM; }
+  else if(id===B.DIAMOND_ORE){ dropId=I.DIAMOND; }
   else if(id===B.LEAVES){ if(Math.random()<0.08) dropId=I.STICK; }
   else if(def.drops!==undefined && def.drops!==-1 && def.drops!==id){ dropId=def.drops; }
   else if(def.drops===-1){} // handled above
@@ -1163,6 +1295,8 @@ function breakBlock(x,y,z){
 function rightClickAction(){
   const hit=raycastBlock();
   if(hit && hit.id===B.TABLE){ openTable(); return; }
+  if(hit && hit.id===B.FURNACE){ openFurnace(hit.x,hit.y,hit.z); return; }
+  if(hit && hit.id===B.BED){ trySleep(hit); return; }
   const item=hotbarItems[hotbarSel];
   if(!item || !DEFS[item.id].block) return;
   if(!hit) return;
@@ -1284,6 +1418,132 @@ function ensureLightAttribs(mesh, sky, blk){
   }
 }
 /* ============================================================
+   12b. FURNACE (smelting) + BED (sleeping)
+============================================================ */
+const SMELT_RECIPES = {
+  [B.SAND]: B.GLASS,
+  [B.COBBLE]: B.STONE,
+  [B.LOG]: I.COAL_ITEM,
+};
+const FUEL_VALUE = { // seconds of burn per item
+  [I.COAL_ITEM]: 32, [B.LOG]: 6, [B.PLANKS]: 6, [I.STICK]: 2,
+  [I.WOOD_PICK]:6,[I.WOOD_AXE]:6,[I.WOOD_SHOVEL]:6,[I.WOOD_SWORD]:6,
+};
+const SMELT_TIME = 4; // seconds per item
+const furnaces = new Map(); // "x,y,z" -> {in, fuel, out, burn, burnMax, progress}
+function getFurnace(key){
+  let f=furnaces.get(key);
+  if(!f){ f={in:null, fuel:null, out:null, burn:0, burnMax:1, progress:0}; furnaces.set(key,f); }
+  return f;
+}
+function updateFurnaces(dt){
+  for(const [key,f] of furnaces){
+    const [x,y,z]=key.split(',').map(Number);
+    if(world.getBlock(x,y,z)!==B.FURNACE){ furnaces.delete(key); continue; }
+    const canSmelt = f.in && SMELT_RECIPES[f.in.id]!==undefined &&
+      (!f.out || (f.out.id===SMELT_RECIPES[f.in.id] && f.out.count<64));
+    if(f.burn<=0 && canSmelt && f.fuel && FUEL_VALUE[f.fuel.id]){
+      f.burnMax = f.burn = FUEL_VALUE[f.fuel.id];
+      f.fuel.count--; if(f.fuel.count<=0) f.fuel=null;
+      if(furnaceUIKey===key) renderFurnaceUI();
+    }
+    if(f.burn>0){
+      f.burn-=dt;
+      if(canSmelt){
+        f.progress+=dt;
+        if(f.progress>=SMELT_TIME){
+          f.progress=0;
+          const outId=SMELT_RECIPES[f.in.id];
+          if(f.out) f.out.count++; else f.out={id:outId,count:1};
+          f.in.count--; if(f.in.count<=0) f.in=null;
+          if(x>((player.pos.x|0)-24) && x<((player.pos.x|0)+24)) sfx.place();
+        }
+      } else f.progress=0;
+    } else f.progress=Math.max(0,f.progress-dt*2);
+    if(furnaceUIKey===key){
+      updateFurnaceBars(f);
+      fUIAcc+=dt;
+      if(fUIAcc>0.3){ fUIAcc=0; fSlots.in[0]=f.in; fSlots.fuel[0]=f.fuel; fSlots.out[0]=f.out; renderFurnaceUI(); }
+    }
+  }
+}
+let furnaceUIKey=null, fUIAcc=0;
+const fSlots={in:[null],fuel:[null],out:[null]}; // 1-length array views for slotClick
+function openFurnace(x,y,z){
+  furnaceUIKey=x+','+y+','+z;
+  const f=getFurnace(furnaceUIKey);
+  fSlots.in[0]=f.in; fSlots.fuel[0]=f.fuel; fSlots.out[0]=f.out;
+  openUI('furnace');
+  renderFurnaceUI();
+}
+function syncFurnaceSlots(){
+  if(!furnaceUIKey) return;
+  const f=getFurnace(furnaceUIKey);
+  f.in=fSlots.in[0]; f.fuel=fSlots.fuel[0]; f.out=fSlots.out[0];
+}
+function renderFurnaceUI(){
+  const el=document.getElementById('fslots');
+  if(!el) return;
+  syncFurnaceSlots();
+  const mk=(arr,label,accept)=>{
+    const d=document.createElement('div'); d.className='fcol';
+    d.innerHTML=`<div class="flabel">${label}</div>`;
+    const s=document.createElement('div'); s.className='uislot';
+    s.innerHTML=slotHTML(arr[0]);
+    s.addEventListener('mousedown',e=>{ e.preventDefault();
+      // output slot: take-only
+      if(accept==='out'){
+        if(arr[0] && (!ui.held || (ui.held.id===arr[0].id && ui.held.count+arr[0].count<=64))){
+          if(ui.held) ui.held.count+=arr[0].count; else ui.held=arr[0];
+          arr[0]=null; sfx.pickup();
+        }
+      } else slotClickProxy(arr,0,e.button===2);
+      syncFurnaceSlots(); renderFurnaceUI(); updateFurnaceBars(getFurnace(furnaceUIKey)); renderHotbar();
+    });
+    d.appendChild(s); return d;
+  };
+  el.innerHTML='';
+  el.appendChild(mk(fSlots.in,'Smelt'));
+  const flame=document.createElement('div'); flame.className='fflame'; flame.id='fflame';
+  flame.innerHTML='<div class="fburn"></div>'; el.appendChild(flame);
+  el.appendChild(mk(fSlots.fuel,'Fuel'));
+  const arrow=document.createElement('div'); arrow.className='farrow'; arrow.id='farrow';
+  arrow.innerHTML='<div class="fprog"></div>'; el.appendChild(arrow);
+  el.appendChild(mk(fSlots.out,'Out'));
+  updateFurnaceBars(getFurnace(furnaceUIKey));
+}
+function updateFurnaceBars(f){
+  if(!furnaceUIKey) return;
+  const fa=document.getElementById('farrow'), fl=document.getElementById('fflame');
+  if(!fa||!fl) return;
+  fa.querySelector('.fprog').style.width=((f.progress/SMELT_TIME)*100|0)+'%';
+  fl.querySelector('.fburn').style.height=(Math.max(0,f.burn)/Math.max(1,f.burnMax)*100|0)+'%';
+}
+/* ---- bed & sleeping ---- */
+function trySleep(hit){
+  const c=world.getChunk(hit.x>>4, hit.z>>4);
+  let skyLight=15;
+  if(c && c.meshes){ const li=c.idx(hit.x&15, Math.min(HEIGHT-1,hit.y+1), hit.z&15); skyLight=c.sky[li]; }
+  const night = dayLightLevel()<0.5;
+  if(!night && skyLight>=12){ showToast('You can only sleep at night'); return; }
+  // set spawn on top of the bed, then wake at dawn
+  player.spawn.set(hit.x+0.5, hit.y+1.05, hit.z+0.5);
+  const fade=document.getElementById('sleepfade');
+  fade.style.opacity=1;
+  showToast('Sleeping… spawn point set');
+  setTimeout(()=>{
+    dayTime=0.30; // just after dawn
+    fade.style.opacity=0;
+    // hostile mobs caught outside in the new daylight burn away
+    for(const m of mobs) if(m.def.hostile) m.hp=0, killMob(m,false);
+  }, 1400);
+}
+function showToast(msg){
+  const el=document.getElementById('itemname');
+  el.textContent=msg; el.style.opacity=1;
+  clearTimeout(showToast._t); showToast._t=setTimeout(()=>el.style.opacity=0,2200);
+}
+/* ============================================================
    11. INVENTORY SYSTEM
 ============================================================ */
 // 36 slots: 0-8 hotbar, 9-35 storage
@@ -1334,14 +1594,27 @@ const RECIPES = [
   {p:[[B.PLANKS],[B.PLANKS]], out:[I.STICK,4], tier:2},
   {p:[[B.PLANKS,B.PLANKS],[B.PLANKS,B.PLANKS]], out:[B.TABLE,1], tier:2},
   {p:[[I.COAL_ITEM],[I.STICK]], out:[B.TORCH,4], tier:2},
+  {p:[[B.SAND,B.SAND],[B.SAND,B.SAND]], out:[B.SANDSTONE,1], tier:2},
+  {p:[[B.STONE,B.STONE],[B.STONE,B.STONE]], out:[B.STONEBRICK,4], tier:2},
+  {p:[[I.COAL_ITEM,I.COAL_ITEM],[I.COAL_ITEM,I.COAL_ITEM]], out:[B.GLOWSTONE,1], tier:2},
   {p:[[B.PLANKS,B.PLANKS,B.PLANKS],[0,I.STICK,0],[0,I.STICK,0]], out:[I.WOOD_PICK,1], tier:3},
   {p:[[B.COBBLE,B.COBBLE,B.COBBLE],[0,I.STICK,0],[0,I.STICK,0]], out:[I.STONE_PICK,1], tier:3},
   {p:[[I.IRON_ITEM,I.IRON_ITEM,I.IRON_ITEM],[0,I.STICK,0],[0,I.STICK,0]], out:[I.IRON_PICK,1], tier:3},
+  {p:[[I.DIAMOND,I.DIAMOND,I.DIAMOND],[0,I.STICK,0],[0,I.STICK,0]], out:[I.DIAMOND_PICK,1], tier:3},
   {p:[[B.PLANKS],[B.PLANKS],[I.STICK]], out:[I.WOOD_SWORD,1], tier:3},
   {p:[[B.COBBLE],[B.COBBLE],[I.STICK]], out:[I.STONE_SWORD,1], tier:3},
   {p:[[I.IRON_ITEM],[I.IRON_ITEM],[I.STICK]], out:[I.IRON_SWORD,1], tier:3},
+  {p:[[I.DIAMOND],[I.DIAMOND],[I.STICK]], out:[I.DIAMOND_SWORD,1], tier:3},
   {p:[[B.PLANKS,B.PLANKS],[B.PLANKS,I.STICK],[0,I.STICK]], out:[I.WOOD_AXE,1], tier:3},
+  {p:[[B.COBBLE,B.COBBLE],[B.COBBLE,I.STICK],[0,I.STICK]], out:[I.STONE_AXE,1], tier:3},
+  {p:[[I.IRON_ITEM,I.IRON_ITEM],[I.IRON_ITEM,I.STICK],[0,I.STICK]], out:[I.IRON_AXE,1], tier:3},
+  {p:[[I.DIAMOND,I.DIAMOND],[I.DIAMOND,I.STICK],[0,I.STICK]], out:[I.DIAMOND_AXE,1], tier:3},
   {p:[[B.PLANKS],[I.STICK],[I.STICK]], out:[I.WOOD_SHOVEL,1], tier:3},
+  {p:[[B.COBBLE],[I.STICK],[I.STICK]], out:[I.STONE_SHOVEL,1], tier:3},
+  {p:[[I.IRON_ITEM],[I.STICK],[I.STICK]], out:[I.IRON_SHOVEL,1], tier:3},
+  {p:[[I.DIAMOND],[I.STICK],[I.STICK]], out:[I.DIAMOND_SHOVEL,1], tier:3},
+  {p:[[B.COBBLE,B.COBBLE,B.COBBLE],[B.COBBLE,0,B.COBBLE],[B.COBBLE,B.COBBLE,B.COBBLE]], out:[B.FURNACE,1], tier:3},
+  {p:[[B.WOOL,B.WOOL,B.WOOL],[B.PLANKS,B.PLANKS,B.PLANKS]], out:[B.BED,1], tier:3},
 ];
 function matchRecipe(grid, size){
   // grid: array of size*size item-or-null
@@ -1471,7 +1744,7 @@ function updateCraftResults(){
 function renderInvUI(){
   if(!ui.open) return;
   const invGrid=document.getElementById('invgrid');
-  const hbGrid=document.getElementById(ui.mode==='table'?'tablehotbar':'invhotbar');
+  const hbGrid=document.getElementById(ui.mode==='inv'?'invhotbar':(ui.mode==='table'?'tablehotbar':'furnhotbar'));
   if(ui.mode==='inv'){
     invGrid.style.display='grid';
     document.getElementById('craftrow').style.display='flex';
@@ -1523,7 +1796,8 @@ document.addEventListener('mousemove', e=>{
 function toggleInventory(){ if(ui.open) closeUI(); else openUI('inv'); }
 function openUI(mode){
   ui.open=true; ui.mode=mode;
-  document.getElementById(mode==='inv'?'invscreen':'tablescreen').style.display='block';
+  const screenId = mode==='inv'?'invscreen':mode==='table'?'tablescreen':'furnscreen';
+  document.getElementById(screenId).style.display='block';
   document.exitPointerLock();
   renderInvUI(); updateCraftResults();
 }
@@ -1537,8 +1811,10 @@ function closeUI(){
   }
   if(ui.held){ if(!giveItem(ui.held.id, ui.held.count)) spawnDrop(player.pos.x,player.pos.y+1,player.pos.z,ui.held.id,ui.held.count); ui.held=null; }
   ui.open=false; ui.mode=null;
+  furnaceUIKey=null;
   document.getElementById('invscreen').style.display='none';
   document.getElementById('tablescreen').style.display='none';
+  document.getElementById('furnscreen').style.display='none';
   document.getElementById('heldcursor').style.display='none';
   if(!player.dead) canvas.requestPointerLock();
 }
@@ -1586,10 +1862,8 @@ function updateHeldMesh(){
 }
 function renderArm(){
   const geo=new THREE.BoxGeometry(0.14,0.14,0.5);
-  geo.setAttribute('skyl', new THREE.Float32BufferAttribute(new Array(geo.attributes.position.count).fill(1),1));
-  geo.setAttribute('blockl', new THREE.Float32BufferAttribute(new Array(geo.attributes.position.count).fill(0.3),1));
-  geo.setAttribute('shade', new THREE.Float32BufferAttribute(new Array(geo.attributes.position.count).fill(1),1));
-  heldMesh=new THREE.Mesh(geo, matOpaque);
+  const mat=new THREE.MeshLambertMaterial({color:0xd8a37a});
+  heldMesh=new THREE.Mesh(geo, mat);
   heldMesh.position.set(0.05,-0.1,0.1);
   heldMesh.rotation.set(0.5,0.3,0);
   heldGroup.add(heldMesh);
@@ -1621,12 +1895,12 @@ function mobTexture(painter){
 // simple colored material per mob part
 function partMat(color){ return new THREE.MeshLambertMaterial({color}); }
 const MOB_DEFS = {
-  cow:  {size:[0.9,1.3,1.4], hp:10, speed:1.2, hostile:false, color:0x6b4a33, headColor:0x8a6a50, drop:[I.MEAT,1,2], bodyOff:0.75},
-  pig:  {size:[0.8,0.9,1.2], hp:8,  speed:1.3, hostile:false, color:0xf0a0a8, headColor:0xf0a0a8, drop:[I.MEAT,1,2], bodyOff:0.55},
-  sheep:{size:[0.8,1.2,1.2], hp:8,  speed:1.1, hostile:false, color:0xe8e8e8, headColor:0xd8c8b8, drop:[I.MEAT,1,1], bodyOff:0.7},
-  chicken:{size:[0.4,0.7,0.6],hp:4, speed:1.4, hostile:false, color:0xf5f5f5, headColor:0xe85050, drop:[I.FEATHER,1,2], bodyOff:0.45},
-  zombie:{size:[0.6,1.9,0.6], hp:20, speed:1.9, hostile:true, color:0x3a7a3a, headColor:0x4a9a4a, dmg:3, drop:null, bodyOff:1.1},
-  creeper:{size:[0.6,1.6,0.6],hp:20, speed:2.1, hostile:true, color:0x4aab44, headColor:0x4aab44, dmg:0, drop:null, bodyOff:0.9, creeper:true},
+  cow:  {size:[0.9,1.3,1.4], hp:10, speed:1.2, hostile:false, color:0x6b4a33, headColor:0x8a6a50, drops:[[I.MEAT,1,2]], bodyOff:0.75},
+  pig:  {size:[0.8,0.9,1.2], hp:8,  speed:1.3, hostile:false, color:0xf0a0a8, headColor:0xf0a0a8, drops:[[I.MEAT,1,2]], bodyOff:0.55},
+  sheep:{size:[0.8,1.2,1.2], hp:8,  speed:1.1, hostile:false, color:0xe8e8e8, headColor:0xd8c8b8, drops:[[B.WOOL,1,2],[I.MEAT,1,1]], bodyOff:0.7},
+  chicken:{size:[0.4,0.7,0.6],hp:4, speed:1.4, hostile:false, color:0xf5f5f5, headColor:0xe85050, drops:[[I.FEATHER,1,2],[I.MEAT,1,1]], bodyOff:0.45},
+  zombie:{size:[0.6,1.9,0.6], hp:20, speed:1.9, hostile:true, color:0x3a7a3a, headColor:0x4a9a4a, dmg:3, drops:null, bodyOff:1.1},
+  creeper:{size:[0.6,1.6,0.6],hp:20, speed:2.1, hostile:true, color:0x4aab44, headColor:0x4aab44, dmg:0, drops:null, bodyOff:0.9, creeper:true},
 };
 const mobs=[];
 function makeMobMesh(def){
@@ -1774,7 +2048,7 @@ function creeperExplode(m){
     if(id!==B.TORCH && Math.random()<0.4){
       const def=DEFS[id];
       let dropId=def.drops===-1?null:(def.drops!==undefined&&def.drops!==id?def.drops:id);
-      if(id===B.COAL)dropId=I.COAL_ITEM; if(id===B.IRON)dropId=I.IRON_ITEM;
+      if(id===B.COAL)dropId=I.COAL_ITEM; if(id===B.IRON)dropId=I.IRON_ITEM; if(id===B.DIAMOND_ORE)dropId=I.DIAMOND;
       if(dropId && DEFS[dropId] && (DEFS[dropId].block||DEFS[dropId].id>=100)) spawnDrop(bx+0.5,by+0.5,bz+0.5,dropId,1);
     }
   }
@@ -1787,9 +2061,10 @@ function creeperExplode(m){
 function killMob(m, byPlayer){
   m.remove=true;
   spawnParticles(m.mesh.position.x, m.mesh.position.y+m.def.size[1]/2, m.mesh.position.z, m.def.color, 12);
-  if(m.def.drop){
-    const [id,lo,hi]=m.def.drop;
-    spawnDrop(m.mesh.position.x, m.mesh.position.y+0.5, m.mesh.position.z, id, lo+((Math.random()*(hi-lo+1))|0));
+  if(m.def.drops){
+    for(const [id,lo,hi] of m.def.drops){
+      spawnDrop(m.mesh.position.x, m.mesh.position.y+0.5, m.mesh.position.z, id, lo+((Math.random()*(hi-lo+1))|0));
+    }
   }
 }
 function raycastMob(){
@@ -2029,10 +2304,30 @@ function saveGame(){
       pos:[player.pos.x,player.pos.y,player.pos.z], yaw:player.yaw, pitch:player.pitch,
       hp:player.hp, dayTime, hotbarSel, inv,
       overrides:[...overrides.entries()],
+      seed:GEN,
+      furnaces:[...furnaces.entries()].map(([k,f])=>[k,{in:f.in,fuel:f.fuel,out:f.out}]),
     };
     localStorage.setItem('davecraft_save', JSON.stringify(data));
     return true;
   }catch(e){ return false; }
+}
+function newWorld(seed){
+  GEN = seed!==undefined ? (seed|0) : ((Math.random()*0x7fffffff)|0);
+  for(const c of chunks.values()) disposeChunkMesh(c);
+  chunks.clear(); overrides.clear(); genQueue.length=0;
+  updateChunkStreaming.lastCx=undefined;
+  for(const m of mobs){ scene.remove(m.mesh); } mobs.length=0;
+  for(const dr of drops){ scene.remove(dr.mesh); dr.mesh.geometry.dispose(); } drops.length=0;
+  furnaces.clear(); furnaceUIKey=null;
+  for(let i=0;i<36;i++) inv[i]=null;
+  dayTime=0.35;
+  findSpawn();
+  player.hp=player.maxHp; player.dead=false; player.vel.set(0,0,0);
+  document.getElementById('deadscreen').style.display='none';
+  lastHeldId=-2;
+  renderHotbar(); updateHearts();
+  showToast('New world generated · seed '+GEN);
+  sfx.pickup();
 }
 function loadGame(){
   let d=null;
@@ -2044,6 +2339,9 @@ function loadGame(){
   updateChunkStreaming.lastCx=undefined;
   for(const m of mobs){ scene.remove(m.mesh); } mobs.length=0;
   for(const dr of drops){ scene.remove(dr.mesh); dr.mesh.geometry.dispose(); } drops.length=0;
+  furnaces.clear(); furnaceUIKey=null;
+  if(d.seed!==undefined) GEN=d.seed|0;
+  if(d.furnaces) for(const [k,f] of d.furnaces) furnaces.set(k,{in:f.in,fuel:f.fuel,out:f.out,burn:0,burnMax:1,progress:0});
   for(const [k,v] of d.overrides) overrides.set(k,v);
   for(let i=0;i<36;i++) inv[i]=(d.inv&&d.inv[i])||null;
   player.pos.set(d.pos[0],d.pos[1],d.pos[2]); player.vel.set(0,0,0);
@@ -2104,6 +2402,10 @@ document.getElementById('btnLoad').addEventListener('click', ()=>{
   saveMsg.textContent = loadGame() ? 'Loaded!' : 'No save found';
   setTimeout(()=>saveMsg.textContent='', 2000);
 });
+document.getElementById('btnNewWorld2').addEventListener('click', ()=>{
+  newWorld();
+  togglePause(false);
+});
 refreshOptionsMenu();
 
 /* ============================================================
@@ -2115,8 +2417,10 @@ document.getElementById('overlay').addEventListener('click', ()=>{
   document.getElementById('overlay').style.display='none';
   canvas.requestPointerLock();
   try{ sfx.click(); }catch(e){}
-  const resume=()=>{ try{sfx.step();}catch(e){} };
-  resume();
+});
+document.getElementById('btnNewWorld').addEventListener('click', e=>{
+  e.stopPropagation();
+  newWorld();
 });
 
 // pre-generate spawn area then place player
@@ -2138,7 +2442,19 @@ window.__DC_STATS = {mined:0, placed:0};
   }
   if(h.get('ty')!==null){ player.pos.y=parseFloat(h.get('ty')); player.fallStartY=player.pos.y; }
   if(h.get('t')!==null){ dayTime=parseFloat(h.get('t'))%1; }
-  if(h.get('test')==='1'){ giveItem(B.LOG,16); giveItem(B.COBBLE,16); giveItem(I.COAL_ITEM,4); giveItem(I.STICK,4); giveItem(B.PLANKS,8); }
+  if(h.get('test')==='1'){ giveItem(B.LOG,16); giveItem(B.COBBLE,16); giveItem(I.COAL_ITEM,4); giveItem(I.STICK,4); giveItem(B.PLANKS,8);
+    giveItem(B.SAND,8); giveItem(B.WOOL,4); giveItem(I.DIAMOND,3); }
+  if(h.get('easy')==='1'){ settings.difficulty='easy'; settings.dayLen=600; DAY_LENGTH=600; saveSettings(); }
+  if(h.get('furn')==='1'){
+    // dev/test: place a furnace in front of the player, loaded with sand + coal, and open it
+    const fx=Math.floor(player.pos.x), fz=Math.floor(player.pos.z);
+    let fy=Math.min(HEIGHT-2, Math.floor(player.pos.y)+3);
+    while(fy>1 && world.getBlock(fx,fy-1,fz)===B.AIR) fy--;
+    world.setBlock(fx,fy,fz,B.FURNACE,false);
+    const f=getFurnace(fx+','+fy+','+fz);
+    f.in={id:B.SAND,count:4}; f.fuel={id:I.COAL_ITEM,count:2};
+    setTimeout(()=>openFurnace(fx,fy,fz), 500);
+  }
 })();
 
 let lastT=performance.now();
@@ -2163,6 +2479,7 @@ function frame(){
     trySpawnMobs(dt);
     updateDayNight(dt);
     updateParticles(dt);
+    updateFurnaces(dt);
   }
 
   // camera
@@ -2195,7 +2512,7 @@ function frame(){
   else outline.visible=false;
 
   // debug HUD
-  debugEl.textContent=`FPS: ${fps}\nChunk: ${Math.floor(player.pos.x/16)}, ${Math.floor(player.pos.z/16)}\nXYZ: ${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}\nMobs: ${mobs.length}  Drops: ${drops.length}`;
+  debugEl.textContent=`FPS: ${fps}\nChunk: ${Math.floor(player.pos.x/16)}, ${Math.floor(player.pos.z/16)}\nXYZ: ${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}\nMobs: ${mobs.length}  Drops: ${drops.length}\nSeed: ${GEN}`;
 
   window.__DC_STATS.x=Math.round(player.pos.x); window.__DC_STATS.y=Math.round(player.pos.y); window.__DC_STATS.z=Math.round(player.pos.z);
   window.__DC_STATS.hp=player.hp; window.__DC_STATS.chunks=chunks.size; window.__DC_STATS.meshed=[...chunks.values()].filter(c=>c.meshes).length;
